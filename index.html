@@ -1,0 +1,330 @@
+<html>
+<head>
+
+<!--Required for CSS style sheets-->
+
+<pre>
+<link rel="stylesheet" href="/css/blueprint/screen.css" type="text/css" media="screen, projection, print"/>
+<link rel="stylesheet" href="/css/css4circoletto.css" type="text/css" />
+</pre>
+
+<script type="text/javascript">
+<!--
+function popup(mylink, windowname)
+{
+if (! window.focus)return true;
+var href;
+if (typeof(mylink) == 'string')
+   href=mylink;
+else
+   href=mylink.href;
+window.open(href, windowname, 'width=450,height=850,scrollbars=yes,resizable=yes,toolbar=no,menubar=no');
+return false;
+}
+//-->
+
+function clearFileInputField(tagId) {
+    document.getElementById(tagId).innerHTML = document.getElementById(tagId).innerHTML;
+}
+</script>
+<script src="/js/jquery.min.js"></script>
+<script src="/js/jquery.placeholder.min.js"></script>
+
+<title>Circoletto @ the BAT cave</title>
+
+</head>
+<body>
+
+<div class="container" style="opacity:0.92;filter:alpha(opacity=92)">
+
+<!--Header of the Page-->
+<div id="header" class="span-24 last" style="background-color:white">
+<h1 style="text-align:center" id="top">Circoletto</h1>
+<h2 style="text-align:center">visualising sequence similarity with Circos | <b>04.07.16</b></h2>
+<!--<h2 style="text-align:center;font-size:1.1em;"><i>[in case of trouble or for consistency, find the previous version <a href="index--old.html">here</a>]</i></h2>-->
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="content" class="span-24 last">
+
+<!-- The FORM -->
+<form enctype="multipart/form-data" action="/cgi-bin/circoletto_html.pl" method="post" name="circoletto" onReset="return confirm('do you really want to reset the form?')">
+
+<fieldset>
+<p style="text-align:center"><a href="http://bat.infspire.org/downloads/circoletto.png">poster</a> | <a href="#news">news</a> | <a href="#info">help</a> | <a href="#code">code</a> | <a href="http://www.ncbi.nlm.nih.gov/pubmed/20736339" target="_blank">cite us</a> | <a href="http://bat.infspire.org/contactus/contact_form/index.php" onClick="return popup(this, 'contact the BAT cave')">contact us</a> | <a href="http://bat.infspire.org" target="_blank">BAT cave</a> | <input type="text" size="12" name="elite" /></p>
+
+<!--<font color="red">new!</font> -->
+
+<fieldset style="background-color:rgb(232,232,232);">
+<legend>BLAST</legend>
+<label><i>-either-</i> provide <u>FASTA-formatted</u> sequences for BLAST, <u>query</u> and a <u>database</u> (max upload: 20MB total & max sequence count: 200)</label></br>
+<textarea id="qtext" name="querytext" class="textarea" placeholder="query FASTA"></textarea></br>
+<div id="blastquery_div">
+<input type="file" onkeydown="return false;" size="80" name="queryfile" class="browse4file"/>
+<a onclick="clearFileInputField('blastquery_div')" href="javascript:noAction();">clear chosen file</a>
+</div>
+<textarea id="dtext" name="databasetext" class="textarea" placeholder="database FASTA"></textarea></br>  
+<div id="blastdb_div">
+<input type="file" onkeydown="return false;" size="80" name="databasefile" class="browse4file"/>
+<a onclick="clearFileInputField('blastdb_div')" href="javascript:noAction();">clear chosen file</a>
+</div>
+<label>&nbsp;use</label>
+<select name="e_value">
+  <option value="1">1 (relaxed)</option>
+  <option value="0.1">0.1 (relaxed)</option>
+  <option value="1e-2">10 to the -2 (relaxed)</option>
+  <option value="1e-5">10 to the -5 (normal)</option>
+  <option value="1e-10" selected="yes">10 to the -10 (normal)</option>
+  <option value="1e-15">10 to the -15 (normal)</option>
+  <option value="1e-20">10 to the -20 (strict)</option>
+  <option value="1e-30">10 to the -30 (strict)</option>
+  <option value="1e-40">10 to the -40 (strict)</option>
+  <option value="1e-50">10 to the -50 (very strict)</option>
+  <option value="1e-60">10 to the -60 (very strict)</option>
+  <option value="1e-70">10 to the -70 (very strict)</option>
+  <option value="1e-80">10 to the -80 (very strict)</option>
+  <option value="1e-90">10 to the -90 (very strict)</option>
+  <option value="1e-100">10 to the -100 (ultra strict)</option>
+  <option value="1e-140">10 to the -140 (ultra strict)</option>
+  <option value="1e-180">10 to the -180 (ultra strict)</option>
+</select>
+<label>as an E-value for the BLAST run</label><i> - this will not work with uploaded BLAST output (see below)</i>
+</br>
+<label><input type="checkbox" name="tblastx"/>run tBLASTx for DNA vs DNA</label><i> - please be considerate with this, we have also set stricter limits and safeguards</i>
+</br>
+<label><input type="checkbox" name="flt"/>filter sequences before BLAST (-F option)</label><i> - Circoletto never did that, by default</i>
+</br></br><hr>
+<label><i>-or-</i> provide a BLAST <u>plain text</u> output in <u>pairwise alignment</u> format (<a href="example_blast_output.txt" target="_blank">example</a>) (max upload: 20MB & max sequences length: 2Gbp)</label></br>
+<div id="blastout_div">
+<input type="file" onkeydown="return false;" size="80" name="blastout" />
+<a onclick="clearFileInputField('blastout_div')" href="javascript:noAction();">clear chosen file</a>
+</div>
+</fieldset>
+<fieldset style="background-color:rgb(232,232,232);">
+<legend>output</legend>
+<label><input type="checkbox" name="best_hit"/>ONLY show the best hit per query</label>
+</br>
+<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if you ticked above, show
+<select name="best_hit_type">
+  <option value="local">the single best</option>
+  <option value="entry" selected="yes">all</option>
+</select></label>
+<label>local alignment(s) per best hit</label><i> - we used to show only <b>one</b>, the default is now <b>all</b></i>
+</br>
+<label><input type="checkbox" name="w_hits"/>ONLY show sequences that produced hits</label>
+</br>
+<label>&nbsp;use
+<select name="score2colour">
+  <option value="bit" selected="yes">bitscore</option>
+  <option value="eval">E-value</option>
+  <option value="id">% identity</option>
+</select></label>
+<label>to colour the ribbons</label><i> - colouring is relative, e.g. <b>red</b> may not represent universally best hits but the best of bad</i>
+</br>
+<label>&nbsp;show </label><label><input type="checkbox" name="allowbluerib" checked/>blue-</label><label><input type="checkbox" name="allowgreenrib" checked/>green-</label><label><input type="checkbox" name="alloworangerib" checked/>orange-</label><label><input type="checkbox" name="allowredrib" checked/>red-</label><label>coloured ribbons</label><i> - scored colours will still show in histograms</i>
+</br>
+<label><input type="checkbox" name="invertcolour"/>colour ribbons by (NOT order) invertion, normal:black, inverted:lime</label><i> - scored colours will still show around ribbons and in histograms</i>
+</br>
+<label><input type="checkbox" name="untangling_off"/>switch OFF untangling of the ribbons</label><i> - i.e. keep input order with queries first, database next</i>
+</br>
+<label>&nbsp;depth-order ribbons by
+<select name="z_by">
+  <option value="score" selected="yes">score (highest at top)</option>
+  <option value="score_rev">reverse score (lowest at top)</option>
+  <option value="alnlen">alignment length (longest at top)</option>
+  <option value="alnlen_rev">reverse alignment length (shortest at top)</option>
+</select></label>
+</br><label><font color="red">new!</font><input type="checkbox" name="revcomp_q"/>reverse complement QUERY DNA sequences</label><i> - we'll check they're DNA</i>
+</br><label><font color="red">new!</font><input type="checkbox" name="revcomp_d"/>reverse complement DATABASE DNA sequences</label><i> - we'll check they're DNA</i>
+</br><label><input type="checkbox" name="reverse_qorder"/>reverse ORDER of QUERY ideograms</label><i> - may assist clarity, incompatible with ribbon untangling</i>
+</br><label><input type="checkbox" name="reverse_dorder"/>reverse ORDER of DATABASE ideograms</label><i> - may assist clarity, incompatible with ribbon untangling</i>
+</br><label><input type="checkbox" name="reverse_qorient"/>reverse ORIENTATION of QUERY ideograms</label><i> - ...then read anticlockwisely, may assist clarity with e.g. segment order</i>
+</br><label><input type="checkbox" name="reverse_dorient"/>reverse ORIENTATION of DATABASE ideograms</label><i> - ...then read anticlockwisely, may assist clarity with e.g. segment order</i>
+</br><label><input type="checkbox" name="hide_orient_lights"/>switch OFF orientation lights</label><i> - faint green and red bands at ideogram edges, green-to-red is correct orientation</i>
+</br><label><input type="checkbox" name="no_labels"/>switch OFF sequence labels</label>
+</br>
+<label>&nbsp;output to
+<select name="out_type">
+  <option value="png" selected="yes">PNG</option>
+  <option value="svg">SVG</option>
+</select>
+ of size
+<select name="out_size">
+  <option value="500" selected="yes">1000 x 1000</option>
+  <option value="750">1500 x 1500</option>
+  <option value="1000">2000 x 2000</option>
+</select></label>
+<i> - pixels (consider 1500 x 1500 or 2000 x 2000 for large datasets)</i>
+</br>
+<label>colour ribbons by
+<select name="annocolour">
+  <option value="scores" selected="yes">BLAST scores</option>
+  <option value="query">QUERY ideogram/annotations</option>
+  <option value="query_rainbow_colour">QUERY 7-colour rainbow</option>
+  <option value="query_rainbow_grey">QUERY grey rainbow</option>
+  <option value="database">DATABASE ideogram/annotations</option>
+  <option value="database_rainbow_colour">DATABASE 7-colour rainbow</option>
+  <option value="database_rainbow_grey">DATABASE grey rainbow</option>
+</select></label><i> - switch off ribbon untangling for rainbows? scored colours will still show around ribbons and in histograms</i>
+</br>
+<label>&nbsp;colour ideograms with annotations, if selected above and added below, <a href="example_annotation_and_accepted_colour_names.txt" target="_blank">as in the example</a></label></br>
+<textarea id="annotext" name="annotationtext" class="textarea" placeholder="annotation"></textarea></br>
+<div id="annotation_div">
+<input type="file" onkeydown="return false;" size="80" name="annotationfile" class="browse4file"/>
+<a onclick="clearFileInputField('annotation_div')" 
+                         href="javascript:noAction();">clear chosen file</a>
+</div>
+
+</fieldset>
+
+<input type="submit" class="title" value="Circoletto my data" /> or 
+<input type="reset" class="title" value="reset" />
+</form>
+
+  <script>
+   $(function() {
+    // Invoke the plugin
+    $('input, textarea').placeholder();
+    // That’s it, really.
+   });
+  </script>
+
+</fieldset>
+
+<h2 id="news">news and updates</h2>
+<p>
+<b>04.07.16 |</b> (DNA) sequences can now be reverse complemented, best hits now outlined with same colour instead of black, tested with latest Circos (0.69-3),
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and <a href="https://github.com/infspiredBAT/Circoletto" target="_blank">GitHub</a>!</br>
+<b>19.12.15 |</b> nothing specific really, just uploaded the latest offline package because there have been some edits since August (I really need to GitHub this...)</br>
+<b>29.08.15 |</b> bug with >20char labels (which we trim to 20) causing duplicated/disordered ideograms - code "cleaning"...</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- also switched to a more condensed and lighter-coloured font</br>
+<b>10.08.15 |</b> now with greyscale rainbows as well, which might help more - otherwise remember the <a href="https://simple.wikipedia.org/wiki/Rainbow" target="_blank">7 rainbow colours</a></br>
+<b>10.08.15 |</b> bug with printing histogram data of inverted ribbons - overzealous code cleaning...</br>
+<b>08.08.15 |</b> ribbon colouring enhanced, <a href="https://simple.wikipedia.org/wiki/Rainbow" target="_blank">7-colour rainbow</a> also available (new, so you'll be my lab rats - tip: switch off ribbon untangling)</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- also switched to old Circos' blue/green/orange/red, brighter and more recognisable</br>
+<b>04.08.15 |</b> max total sequences set to 200 from 500, as per default Circos limit,</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;which is reasonable anyway but also to save me/you from modifying and distributing housekeeping.conf</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- if you need more please download and edit both Circolleto (max_sequences) and Circos' housekeeping.conf (max_ideograms)</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...and apologies to the user who experienced this "bug" this morning, unfortunately I tend to do this on the fly</br>
+<b>01.08.15 |</b> Perl/HTML code update/cleanup and a much better downloadable package <a href="#download">below</a>, and more server resources with higher limits</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- some new features are in my mind but we'll see, any requests are <a href="http://bat.infspire.org/contactus/contact_form/index.php" onClick="return popup(this, 'contact the BAT cave')">welcome</a> in any case</br>
+<b>01.11.13 |</b> with colouring by database annotations and in very specific / unlikely scenarios, ribbons wouldn't show - still...</br>
+<b>21.10.13 |</b> caught bug with orientation lights for very short sequences (thank you StV1/Contigs user)</br>
+<b>19.10.13 |</b> it's been a year, hope you are all well :-)</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- for the increasing number of Circoletto users, we have a bug fix and plenty of new and hopefully useful features...</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- for a few of them, and a fruitfull discussion, I'd specifically like to thank <a href="http://statgen.ncsu.edu/dahlia/" target="_blank">Prof Dahlia Nielsen from North Carolina State University, US</a></br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- the bug involved the non-twisting of inverted (reverse complementary) nucleotide sequence ribbons with user-provided BLAST output</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(i.e. the ribbons should had been twisted but they were not)</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- the new features include control over which colours of ribbons to show, the depth-ordering of ribbons, the orientation of ideograms</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(and whether you read them anti/clockwisely), and the orientation lights for reading sequences in the right orientation i.e. green to red</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- we also improved or introduced text here and there, including in the results page</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- per usual, there could be new bugs and issues with Circoletto, please be patient and please <a href="http://bat.infspire.org/contactus/contact_form/index.php" onClick="return popup(this, 'contact the BAT cave')">send us feedback</a></br>
+<b>15.10.12 |</b> not all ribbons were drawn when >500 (?) of them - don't know when this one sneaked in but it's getting embarrassing, isn't it? :-)</br>
+<b>13.10.12 |</b> ribbons were twisting even without sequence inversion, which has now been corrected - most probably another bug since the Circos upgrade</br>
+<b>16.09.12 |</b> BLAST output handling corrected</br>
+<b>06.09.12 |</b> corrected month-old bug in loading annotation file with sequence labels containing '-' and '.'</br>
+<b>22.08.12 |</b> please take care to use <a href="example_annotation_and_accepted_colour_names.txt" target="_blank">accepted colour names in the optional annotation file</a> (I'll implement an internal check soon)</br>
+<b>17.08.12 |</b> still ironing out issues introduced with switching to the latest Circos, sincere apologies for all the failed runs</br>
+<b>06.08.12 |</b> compatibility with Circos 0.62-1 (applicable to offline Circoletto, thanks to Till Bayer for the heads-up), and a minor tweak</br>
+<b>06.06.12 |</b> inspired by user attempts to e.g. map reads to reference, ideogram order can now be reversed (incompatible with ribbon untangling)</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- I might try and rainbow-colour ideograms and/or ribbons based on order</br>
+<b>06.06.12 |</b> been a long time :-) input sequence order is now maintained if ribbon untangling does not run (either by user choice or Circoletto limitations)</br>
+<b>20.12.11 |</b> been having problems with server overload, so tBLASTx is now under tighter control</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- in general, please be considerate (until we upgrade our server :-))</br>
+<b>04.08.11 |</b> ribbons can now be coloured by invertion, normal in black, inverted in lime (thanks to Yannick)</br>
+<b>26.07.11 |</b> slightly delayed release of a minor update, but which also now includes a corrected Circos file (thanks to Colin)</br>
+<b>25.05.11 |</b> long-overdue update of <a href="#info">background and instructions</a></br>
+<b>04.05.11 |</b> well, as always, further improvements follow a release, incl. a foolish BLAST bug, and safer (albeit 'blind') sequence handling</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- i.e. the same label more than once (irrespective of sequence) will become a separate entry, so be careful yesterday's user @ 5pmGMT!</br>
+<b>03.05.11 |</b> inspired by your runs and our work, new features have been implemented, and some bugs fixed</br>
+<b>08.03.11 |</b> the server now monitors the resources used and terminates greedy runs - bear with us while we finetune this, and let us know of any problems</br>
+<b>10.02.11 |</b> changes in the interface and in the algorithm, plus a <a href="http://bat.infspire.org/downloads/circoletto.png" target="_blank">poster</a></br>
+<b>28.10.10 |</b> an issue when some sequences were both queries and database entries (quite uncommon) was resolved</br>
+<b>19.10.10 |</b> bugs were fixed for BLAST-output runs (thanks to CH for the report), plus now you can switch off sequence labels</br>
+<b>15.10.10 |</b> self-hits of equal/less than 50% of sequence are shown in all-vs-all, very thin ribbons are drawn without borders for colour clarity, bug fixes</br>
+<b>03.09.10 |</b> further fine-tuning, incl. better sequence type handling, and flexible ribbon number management - PLEASE provide <a href="http://bat.infspire.org/contactus/contact_form/index.php" onClick="return popup(this, 'contact the BAT cave')">feedback</a></br>
+<b>02.09.10 |</b> new colouring options (E-value, % identity), improved annotation file and fixed process, bug fixes incl. rarely few ribbons not being shown</br>
+<b>01.09.10 |</b> upload limit now up to 10MB, plus histograms might be limited to 'warm' colours or disabled altogether if the data is too much</br>
+<b>30.08.10 |</b> we had some downtime these couple of days, apologies... related to this, we have made some changes to improve both speed and stability</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- of importance, sequence names are now handled better to fit in 20 characters (esp. so for uploaded BLAST output)</br>
+<b>18.08.10 |</b> Circoletto has now been accepted in <a href="http://www.ncbi.nlm.nih.gov/pubmed/20736339" target="_blank">Bioinformatics</a>, i.e. you need to thank the anonymous reviewers for improvements in the past few days</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- and of course much motivation and feedback was provided from the Team and other young and promising researchers at the Institute</br>
+<b>12.08.10 |</b> a <a href="http://bat.infspire.org/contactus/contact_form/index.php" onClick="return popup(this, 'contact the BAT cave')">contact form</a> has now been added near the top of the page;</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PLEASE use it to easily report bugs, send feedback etc., it will be greatly appreciated</br>
+<b>12.08.10 |</b> please note that the BLAST output must be in pairwise alignment format and in plain text (<a href="example_blast_output.txt" target="_blank">example</a>)</br>
+<b>09.08.10 |</b> you can now upload BLAST output in the usual/default pairwise format instead of FASTA files</br>
+<b>23.07.10 |</b> another bug due to certain characters in sequence names has been dealt with by only allowing alphanumerics, undescores and vertical bars</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- also, max name length is now 20 characters</br>
+<b>20.07.10 |</b> a small (and apparently infrequent) bug in the hit histograms has been corrected (hopefully)</br>
+<b>18.07.10 |</b> output size can now be set, and an optional annotation file can be loaded onto the ideograms</br>
+<b>15.07.10 |</b> by default, ideograms are now kept in the order the user has them, queries first, database next</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- just make sure you have switched ribbon untangling off</br>
+</p>
+
+</br>
+<h2 id="code">code</h2>
+<p>
+Now on <a href="https://github.com/infspiredBAT/Circoletto" target="_blank">GitHub</a>.
+</p>
+
+</br>
+<h2 id="info">background and instructions</h2>
+<p>
+<b>| intro</b></br>
+Circoletto is based on <a href="http://circos.ca/" target="_blank">Circos</a> by the incomparable Dr. Martin Krzywinski. 
+It is currently built to visualise <a href="http://en.wikipedia.org/wiki/BLAST" target="_blank">BLAST</a> sequence comparison results, 
+currently also providing a small-scale BLAST server. In fact, Circoletto works best with small datasets 
+and a few hundred links at most, so we are actively controlling the process: Circoletto will only allow up to 1000 ribbons (i.e. local alignments). 
+</br></br>
+<b>| input formats and options</b></br>
+You can provide EITHER two <a href="http://en.wikipedia.org/wiki/Fasta_format" target="_blank">FASTA-formatted</a> nucleotide or amino acid sequence files, the query and database (the same file(name) twice translates to an all against all run), 
+OR a precomputed pairwise alignment BLAST output in plain text. 
+For the BLAST run, an <a href="http://www.ncbi.nlm.nih.gov/BLAST/tutorial/Altschul-1.html#head2" target="_blank">E-value</a> can be selected from presets, you can choose to run tBLASTx for DNA vs DNA sequences, 
+and you can choose to pre-filter the sequences for low complexity. 
+</br></br>
+<b>| output options</b></br>
+For the output, you can control:</br>
+&nbsp;&nbsp;whether you only want to show the best hit per query, and if so all the alignments of the best hit or the single best alignment of the best hit,</br>
+&nbsp;&nbsp;whether you only want to show the sequences that produced hits,</br>
+&nbsp;&nbsp;the ribbon colouring scheme,</br>
+&nbsp;&nbsp;the ribbon untangling,</br>
+&nbsp;&nbsp;the sequence/ideogram order and orientation,</br>
+&nbsp;&nbsp;the use of the sequence labels,</br>
+&nbsp;&nbsp;and finally you can select between PNG and SVG - for a quick look <a href="./circoletto_sample.png" target="_blank">PNG</a> is more than fine, but an <a href="./circoletto_sample.svg" target="_blank">SVG</a> file, although slower, looks much better.
+</br></br>
+<b>| results</b></br>
+Hitting the 'submit to Circolleto' button will reload the page, providing feedback before serving links to the <a href="./circoletto_sample.png" target="_blank">visualisation</a> 
+and back to this form. On the output, everything is read <b>clockwise</b>. The ideograms of the queries are light grey and protruding compared to the dark grey of the database. You can control the colours of the ideograms or parts of them using 
+an annotation file (<a href="example_annotation_and_accepted_colour_names.txt" target="_blank">example</a>). If you do that, then you have the option to colour the ribbons with the colour of the <b>database (!)</b> ideograms or their domains 
+as set in the aforementioned annotation file. For example, this could help you to follow links between certain sequences or parts of - see <a href="example_output.png" target="_blank">default</a> 
+and <a href="example_annocolourdb.png" target="_blank">this</a>.
+</br></br>
+Inside the circle, ribbons represent the local alignments BLAST has produced (or you have provided), in four semi-transparent colours, <b>blue, green, orange</b> and <b>red</b>, representing the four quartiles up to the maximum score 
+- i.e. a local alignment with a score of 80% of the maximum score is red, while one with 20% of the maximum score is blue. <b>Be careful though</b>, this is all relative, i.e. red does not mean universally good (or best), 
+it could mean best of bad alignments - and the same with blue for example. Also, the bitscore (which is used by default for colouring) correlates heavily with alignment length, meaning that you might see (narrower) blue and (wider) red ribbons 
+which might actually all describe alignments with 100% identity. You can easily see this if you run the same dataset with different choice of colouring scheme.
+</br></br>
+Ribbons representing best hits are outlined and placed on top of all other ribbons, otherwise, wider ribbons will be placed beneath narrower ribbons for clarity. More often than not, 
+ribbons will overlap and produce a rather complex picture (with complex colours) - to assist with decoding this, we include a <b>histogram</b> on top of the ideograms, counting how many times each colour has hit the specific part of the sequence. 
+Also, a ribbon will <b>invert</b> if the local alignment is inverted, i.e. if the query hit the other strand of a database sequence.
+</p>
+
+<p class="small quiet terms" style="text-align:right">
+hosted at the <a href="http://bat.infspire.org/" target="_blank"> Bioinformatics Analysis Team / BAT</a>
+</p>
+
+<!-- Close the div for Content -->
+</div>
+
+<!-- FOOTER -->
+<div class="column span-24 border-top">
+<div id="footer" class="column span-24">
+
+</div>
+</div>
+
+<!-- Close the CSS container-->
+</div>
+
+</body>
+</html>
