@@ -290,8 +290,8 @@ if ($version2run == 2) {
 
 } else { error( $cgi, "we seem to have multiple input data - reset the form if you have to" ); }
 
-         print "\n<pre>$circoletto_command<\br>\n";
-$html2print .= "\n<pre>$circoletto_command<\br>\n";
+         print "\n<pre>\n";
+$html2print .= "\n<pre>\n";
 $circoletto_progress = '';
 $done = 0;
 $naptime = 0.1;
@@ -344,7 +344,7 @@ if ($done) {
 # Blue web color Hex#0000FF
 # Indigo Electric Indigo Hex#4B0082
 # Violet Electric Violet Hex#8B00FF	
-    if ($annocolour =~ /rainbow_colour/) {	$colours = qq(colours: 7-colour rainbow, i.e. (in order) <span background-color="#FF0000">red</span>, <span background-color="#FF7F00">orange</span>, <span background-color="#FFFF00">yellow</span>, <span background-color="#00FF00">green</span>, <span background-color="#0000FF">blue</span>, <span background-color="#4B0082">indigo</span>, <span background-color="#8B00FF">violet</span></br>); } else { $colours = ''; }
+    if ($annocolour =~ /rainbow_colour/) { $colours = qq(<u>colours</u>: 7-colour rainbow, i.e. (in order) <span style="color:#FF0000">red</span>, <span style="color:#FF7F00">orange</span>, <span style="color:#FFFF00">yellow</span>, <span style="color:#00FF00">green</span>, <span style="color:#0000FF">blue</span>, <span style="color:#4B0082">indigo</span>, <span style="color:#8B00FF">violet</span></br>); } else { $colours = ''; }
 
 	$namechanges = '';
 	if (-e "$blast_output.original_labels" && -s "$blast_output.original_labels" > 0) {
@@ -358,9 +358,12 @@ if ($done) {
     When you get used to it all, and read the sequences in the correct orientation and the ribbons in the right order,</br>
     &nbsp;&nbsp;the colouring + ordering + twisting + crossing of ribbons should show you what is going on.</i></br>
 	</br>
-    orientations: <b>$qclockwisely</b> for <b>query</b> sequences, <b>$dclockwisely</b> for <b>database</b> sequences$follow_the_lights</br>
+	<u>command line</u>:</br>
+	<span style="word-wrap:break-word;font-family:monospace">$circoletto_command</span></br>
+	</br>
+    <u>orientations</u>: <b>$qclockwisely</b> for <b>query</b> sequences, <b>$dclockwisely</b> for <b>database</b> sequences$follow_the_lights</br>
+	<i>&nbsp;&nbsp;tip: for contig assembly check and for 2-3 sequences with multiple ribbons, it usually helps to reverse orientation of query OR database sequences</i></br>
 	$colours 
-	tip: for contig assembly check and for 2-3 sequences with multiple ribbons, it usually helps to reverse orientation of query OR database sequences</br>
     <a href="/circoletto_results/$circos_output"><img src="/circoletto_results/$circos_output" style="max-width:500px; max-height:500px;"/></a></br>
     $blast4html
 	$namechanges
