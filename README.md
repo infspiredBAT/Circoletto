@@ -2,10 +2,10 @@
 visualising sequence similarity with Circos
 
 </br>
-Online server at http://bat.infspire.org/tools/circoletto/
-</br>
-We also provide the CGI script and the HTML page, both of which will need some work to make them work for you.
-</br></br>
+server: http://bat.infspire.org/tools/circoletto/</br>
+citation: http://www.ncbi.nlm.nih.gov/pubmed/20736339</br>
+code: we provide the main Perl script, and the server's CGI script and HTML page - you'll need Circos, BLAST, and BioPerl</br>
+usage:</br>
 <pre>
 before you run Circoletto, be sure to:
 - have Circos (tested with $circos_compatibility, http://circos.ca/software/download/circos/), BLAST (tested with 2.2.25) in your path, and BioPerl (tested with 1.6.901) installed
@@ -18,7 +18,7 @@ circoletto.pl
 --query     or  --q     -> (path to) the queries
 --database  or  --db    -> (path to) the database
    or
---blastout  or --bl     -> (path to) the BLAST output
+--blastout  or  --bl    -> (path to) the BLAST output
 
    other (optional) arguments
 --best_hit              -> set to show only best hit per query
