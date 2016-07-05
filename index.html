@@ -40,7 +40,7 @@ function clearFileInputField(tagId) {
 <!--Header of the Page-->
 <div id="header" class="span-24 last" style="background-color:white">
 <h1 style="text-align:center" id="top">Circoletto</h1>
-<h2 style="text-align:center">visualising sequence similarity with Circos | <b>04.07.16</b></h2>
+<h2 style="text-align:center">visualising sequence similarity with Circos | <b>05.07.16</b></h2>
 <!--<h2 style="text-align:center;font-size:1.1em;"><i>[in case of trouble or for consistency, find the previous version <a href="index--old.html">here</a>]</i></h2>-->
 </div>
 
@@ -150,11 +150,11 @@ function clearFileInputField(tagId) {
 </select>
  of size
 <select name="out_size">
-  <option value="500" selected="yes">1000 x 1000</option>
-  <option value="750">1500 x 1500</option>
+  <option value="500">1000 x 1000</option>
+  <option value="750" selected="yes">1500 x 1500</option>
   <option value="1000">2000 x 2000</option>
 </select></label>
-<i> - pixels (consider 1500 x 1500 or 2000 x 2000 for large datasets)</i>
+<i> - in pixels</i>
 </br>
 <label>colour ribbons by
 <select name="annocolour">
@@ -193,6 +193,7 @@ function clearFileInputField(tagId) {
 
 <h2 id="news">news and updates</h2>
 <p>
+<b>05.07.16 |</b> non-[\w-.] label characters now replaced with '.' instead of '_' to avoid SVG issues, and best hit outline back to black for SVG</br>
 <b>04.07.16 |</b> (DNA) sequences can now be reverse complemented, best hits now outlined with same colour instead of black, tested with latest Circos (0.69-3),
    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and <a href="https://github.com/infspiredBAT/Circoletto" target="_blank">GitHub</a>!</br>
 <b>19.12.15 |</b> nothing specific really, just uploaded the latest offline package because there have been some edits since August (I really need to GitHub this...)</br>

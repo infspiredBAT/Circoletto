@@ -32,7 +32,7 @@ circoletto.pl
 --query     or  --q     -> (path to) the queries
 --database  or  --db    -> (path to) the database
     or
---blastout  or --bl     -> (path to) the BLAST output
+--blastout  or  --bl    -> (path to) the BLAST output
 
     other (optional) arguments
 --best_hit              -> set to show only best hit per query
@@ -186,13 +186,10 @@ open STDERR, '>/dev/null';
 'defdom'  , 'black'
 );
 %ribocolours = (
-'q1'      , 'blue_a3',
-'q2'      , 'green_a3',
-'q3'      , 'orange_a3',
-'q4'      , 'red_a3',
-'bg'      , 'vdgrey_a4',
-'stroke'  , 'white_a4',
-'best'    , 'black_a2'
+'q1'      , 'blue',
+'q2'      , 'green',
+'q3'      , 'orange',
+'q4'      , 'red'
 );
 %score2colour4report = (
 'bit'     , 'bitscore',
@@ -219,7 +216,7 @@ if (defined($query) && defined($database)) {
 # update annotation FASTA loading when you change these
             $label =~ s/^>//;
             $label =~ s/[^\w-.]/_/g;
-            $label =~ s/_{2,}/_/g;
+            $label =~ s/_{1,}/./g;
             $uniq_label = substr($label,0,$max_label_len);
             while (defined($uniq_labels{$uniq_label})) {
                 $randomer4label = int(rand(1001));
@@ -304,7 +301,7 @@ if (defined($query) && defined($database)) {
                 $label = (split / /, $_)[0];
                 $label =~ s/^>//;
                 $label =~ s/[^\w-.]/_/g;
-                $label =~ s/_{2,}/_/g;
+                $label =~ s/_{1,}/./g;
                 $uniq_label = substr($label,0,$max_label_len);
                 while (defined($uniq_labels{$uniq_label})) {
                     $randomer4label = int(rand(1001));
@@ -462,7 +459,7 @@ while( my $result = $in->next_result ) {
         $blastout_query = $uniq_labels{$uniq_label};
     } else {
         $blastout_query =~ s/[^\w-.]/_/g;
-        $blastout_query =~ s/_{2,}/_/g;
+        $blastout_query =~ s/_{1,}/./g;
         $uniq_label = substr($blastout_query,0,$max_label_len);
         while (defined($uniq_labels{$uniq_label})) {
             $randomer4label = int(rand(1001));
@@ -487,7 +484,7 @@ while( my $result = $in->next_result ) {
                 $blastout_hit = $uniq_labels{$uniq_label};
             } else {
                 $blastout_hit =~ s/[^\w-.]/_/g;
-                $blastout_hit =~ s/_{2,}/_/g;
+                $blastout_hit =~ s/_{1,}/./g;
                 $uniq_label = substr($blastout_hit,0,$max_label_len);
                 while (defined($uniq_labels{$uniq_label})) {
                     $randomer4label = int(rand(1001));
@@ -605,7 +602,7 @@ if (defined($annotation)) {
 # always update from above
             $label =~ s/^>//;
             $label =~ s/[^\w-.]/_/g;
-            $label =~ s/_{2,}/_/g;
+            $label =~ s/_{1,}/./g;
             if (defined($uniq_labels{$label})) {
                 $label = $uniq_labels{$label};
             } else {
@@ -688,7 +685,7 @@ foreach $query (keys %{$mem{$set2consider}}) {
         } elsif ($scoreratio >  0.25 && $scoreratio <= 0.5) {  $colour = $ribocolours{q2};
         } elsif ($scoreratio >  0.5  && $scoreratio <= 0.75) { $colour = $ribocolours{q3};
         } else {                                               $colour = $ribocolours{q4}; }
-                                                               $best_colour = $colour; $best_colour =~ s/_a\d/_a1/;
+                                                          $best_colour = $out_type eq 'png' ? $colour . "_a1" : "black_a1";
         foreach $database (keys %{$mem{$set2consider}{$query}{$score}}) {
             if (($best_hit && $best_hit_type eq 'entry' && defined($best_hit_entries{$database})) || keys(%best_hit_entries)==0 || !$best_hit) {
                 $best_hit_entries{$database} = 1;
@@ -697,10 +694,10 @@ foreach $query (keys %{$mem{$set2consider}}) {
                     $a_from = (split / /, $qaln)[0];
                     $a_to   = (split / /, $qaln)[1];
                     if ($per_query == 0) { # i.e. best score
-                        if ($annocolour ne 'scores' || $invertcolour) { $stroker = ",stroke_color=$best_colour,stroke_thickness=2";   # previously: $colour            + thickness of 1
-                        } else {                                        $stroker = ",stroke_color=$best_colour,stroke_thickness=2"; } # previously: $ribocolours{best} + thickness of 1
+                        if ($annocolour ne 'scores' || $invertcolour) { $stroker = ",stroke_color=$colour"."_a1".",stroke_thickness=2";
+                        } else {                                        $stroker = ",stroke_color=$best_colour,stroke_thickness=2"; }
                     } else {
-                        if ($annocolour ne 'scores' || $invertcolour) { $stroker = ",stroke_color=$colour,stroke_thickness=1";
+                        if ($annocolour ne 'scores' || $invertcolour) { $stroker = ",stroke_color=$colour"."_a2".",stroke_thickness=1";
                         } else {                                        $stroker = "";
                             #$a_ratio = abs($a_to - $a_from) / $lensum2show;
                             #if ($a_ratio < 0.005) {                     $stroker = ',stroke_thickness=0';
@@ -720,7 +717,7 @@ foreach $query (keys %{$mem{$set2consider}}) {
                         use bignum;
                         $z = $z + 0;
                         no bignum;
-                        $ribocolour = $colour;
+                        $ribocolour = $colour . "_a3";
                         if ($annocolour =~ /query/) {
                             if (defined($annotations{$query}{ideo_colour})) { $ribocolour = $annotations{$query}{ideo_colour} . "_a3";
                             } else {                                          $ribocolour = $kolours{query} . "_a3"; }
@@ -858,10 +855,10 @@ close ORILABELS;
 
 print "(?) creating histogram\n" if %histogram;
 @sorted_colours = (
-'red_a3',
-'orange_a3',
-'green_a3',
-'blue_a3',
+'red',
+'orange',
+'green',
+'blue',
 );
 $max4his = 0;
 foreach $label (keys %histogram) {
@@ -973,30 +970,30 @@ print CONF "
 <<include etc/colors_fonts_patterns.conf>>
 
 <colors>
-red                 = 247,42,66
-green               = 51,204,94
-blue                = 54,116,217
-orange              = 255,136,0
-lime                = 186,255,0
+red                 = 247, 42, 66
+green               = 51, 204, 94
+blue                = 54, 116, 217
+orange              = 255, 136, 0
+lime                = 186, 255, 0
 
-#colour-rainbow-1  = 248, 12, 18
-#colour-rainbow-2  = 238, 17, 0
-#colour-rainbow-3  = 255, 51, 17
-#colour-rainbow-4  = 255, 68, 34
-#colour-rainbow-5  = 255, 102, 68
-#colour-rainbow-6  = 255, 153, 51
-#colour-rainbow-7  = 254, 174, 45
-#colour-rainbow-8  = 204, 187, 51
-#colour-rainbow-9  = 208, 195, 16
-#colour-rainbow-10 = 170, 204, 34
-#colour-rainbow-11 = 105, 208, 37
-#colour-rainbow-12 = 34, 204, 170
-#colour-rainbow-13 = 18, 189, 185
-#colour-rainbow-14 = 17, 170, 187
-#colour-rainbow-15 = 68, 68, 221
-#colour-rainbow-16 = 51, 17, 187
-#colour-rainbow-17 = 59, 12, 189
-#colour-rainbow-18 = 68, 34, 153
+#colour-rainbow-1   = 248, 12, 18
+#colour-rainbow-2   = 238, 17, 0
+#colour-rainbow-3   = 255, 51, 17
+#colour-rainbow-4   = 255, 68, 34
+#colour-rainbow-5   = 255, 102, 68
+#colour-rainbow-6   = 255, 153, 51
+#colour-rainbow-7   = 254, 174, 45
+#colour-rainbow-8   = 204, 187, 51
+#colour-rainbow-9   = 208, 195, 16
+#colour-rainbow-10  = 170, 204, 34
+#colour-rainbow-11  = 105, 208, 37
+#colour-rainbow-12  = 34, 204, 170
+#colour-rainbow-13  = 18, 189, 185
+#colour-rainbow-14  = 17, 170, 187
+#colour-rainbow-15  = 68, 68, 221
+#colour-rainbow-16  = 51, 17, 187
+#colour-rainbow-17  = 59, 12, 189
+#colour-rainbow-18  = 68, 34, 153
 
 # Red web color Hex#FF0000
 # Orange color wheel Orange Hex#FF7F00
@@ -1005,21 +1002,21 @@ lime                = 186,255,0
 # Blue web color Hex#0000FF
 # Indigo Electric Indigo Hex#4B0082
 # Violet Electric Violet Hex#8B00FF
-colour-rainbow-1  = 255, 0, 0
-colour-rainbow-2  = 255, 127, 0
-colour-rainbow-3  = 255, 255, 0
-colour-rainbow-4  = 0, 255, 0
-colour-rainbow-5  = 0, 0, 255
-colour-rainbow-6  = 75, 0, 130
-colour-rainbow-7  = 143, 0, 255
+colour-rainbow-1    = 255, 0, 0
+colour-rainbow-2    = 255, 127, 0
+colour-rainbow-3    = 255, 255, 0
+colour-rainbow-4    = 0, 255, 0
+colour-rainbow-5    = 0, 0, 255
+colour-rainbow-6    = 75, 0, 130
+colour-rainbow-7    = 143, 0, 255
 
-grey-rainbow-1    = 230,230,230
-grey-rainbow-2    = 200,200,200
-grey-rainbow-3    = 170,170,170
-grey-rainbow-4    = 140,140,140
-grey-rainbow-5    = 110,110,110
-grey-rainbow-6    = 80, 80, 80 
-grey-rainbow-7    = 50, 50, 50 
+grey-rainbow-1      = 230, 230, 230
+grey-rainbow-2      = 200, 200, 200
+grey-rainbow-3      = 170, 170, 170
+grey-rainbow-4      = 140, 140, 140
+grey-rainbow-5      = 110, 110, 110
+grey-rainbow-6      = 80, 80, 80 
+grey-rainbow-7      = 50, 50, 50 
 </colors>
 
 <ideogram>
@@ -1029,17 +1026,6 @@ break               = 10u
 axis_break_at_edge  = no
 axis_break          = no
 axis_break_style    = 1
-<break_style 1>
-stroke_color        = black
-fill_color          = blue
-thickness           = 0.1r
-stroke_thickness    = 2
-</break>
-<break_style 2>
-stroke_color        = black
-stroke_thickness    = 100
-thickness           = 1.5r
-</break>
 </spacing>
 thickness           = 12p
 stroke_thickness    = 1
