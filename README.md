@@ -4,8 +4,9 @@ visualising sequence similarity with Circos
 </br>
 server: http://bat.infspire.org/tools/circoletto/</br>
 citation: http://www.ncbi.nlm.nih.gov/pubmed/20736339</br>
+poster: http://bat.infspire.org/tools/circoletto/circoletto.png</br>
 code: we provide the main Perl script, and the server's CGI script and HTML page - you'll need Circos, BLAST, and BioPerl</br>
-usage:</br>
+usage:
 <pre>
 before you run Circoletto, be sure to:
 - have Circos (tested with $circos_compatibility, http://circos.ca/software/download/circos/), BLAST (tested with 2.2.25) in your path, and BioPerl (tested with 1.6.901) installed
