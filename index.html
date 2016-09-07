@@ -1,8 +1,6 @@
 <html>
 <head>
 
-<!--Required for CSS style sheets-->
-
 <pre>
 <link rel="stylesheet" href="/css/blueprint/screen.css" type="text/css" media="screen, projection, print"/>
 <link rel="stylesheet" href="/css/css4circoletto.css" type="text/css" />
@@ -40,7 +38,7 @@ function clearFileInputField(tagId) {
 <!--Header of the Page-->
 <div id="header" class="span-24 last" style="background-color:white">
 <h1 style="text-align:center" id="top">Circoletto</h1>
-<h2 style="text-align:center">visualising sequence similarity with Circos | <b>05.07.16</b></h2>
+<h2 style="text-align:center">visualising sequence similarity with Circos | <b>07.09.16</b></h2>
 <!--<h2 style="text-align:center;font-size:1.1em;"><i>[in case of trouble or for consistency, find the previous version <a href="index--old.html">here</a>]</i></h2>-->
 </div>
 
@@ -51,7 +49,7 @@ function clearFileInputField(tagId) {
 <form enctype="multipart/form-data" action="/cgi-bin/circoletto_html.pl" method="post" name="circoletto" onReset="return confirm('do you really want to reset the form?')">
 
 <fieldset>
-<p style="text-align:center"><a href="http://bat.infspire.org/downloads/circoletto.png">poster</a> | <a href="#news">news</a> | <a href="#info">help</a> | <a href="#code">code</a> | <a href="http://www.ncbi.nlm.nih.gov/pubmed/20736339" target="_blank">cite us</a> | <a href="http://bat.infspire.org/contactus/contact_form/index.php" onClick="return popup(this, 'contact the BAT cave')">contact us</a> | <a href="http://bat.infspire.org" target="_blank">BAT cave</a> | <input type="text" size="12" name="elite" /></p>
+<p style="text-align:center"><a href="http://bat.infspire.org/downloads/circoletto.png">poster</a> | <a href="#news">news</a> | <a href="#info">help</a> | <a href="#code">code</a> | <a href="http://www.ncbi.nlm.nih.gov/pubmed/20736339" target="_blank">cite us</a> | <a href="mailto:bat@infspire.org" target="_blank">contact us</a> | <a href="http://bat.infspire.org" target="_blank">BAT cave</a> | <input type="text" size="12" name="elite" /></p>
 
 <!--<font color="red">new!</font> -->
 
@@ -100,48 +98,63 @@ function clearFileInputField(tagId) {
 <a onclick="clearFileInputField('blastout_div')" href="javascript:noAction();">clear chosen file</a>
 </div>
 </fieldset>
+
 <fieldset style="background-color:rgb(232,232,232);">
 <legend>output</legend>
+
 <label><input type="checkbox" name="best_hit"/>ONLY show the best hit per query</label>
-</br>
-<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if you ticked above, show
+
+</br><label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if you ticked above, show
 <select name="best_hit_type">
   <option value="local">the single best</option>
   <option value="entry" selected="yes">all</option>
 </select></label>
 <label>local alignment(s) per best hit</label><i> - we used to show only <b>one</b>, the default is now <b>all</b></i>
-</br>
-<label><input type="checkbox" name="w_hits"/>ONLY show sequences that produced hits</label>
-</br>
-<label>&nbsp;use
+
+</br><label><input type="checkbox" name="w_hits"/>ONLY show sequences that produced hits</label>
+
+</br><label>&nbsp;use
 <select name="score2colour">
   <option value="bit" selected="yes">bitscore</option>
   <option value="eval">E-value</option>
   <option value="id">% identity</option>
 </select></label>
 <label>to colour the ribbons</label><i> - colouring is relative, e.g. <b>red</b> may not represent universally best hits but the best of bad</i>
-</br>
-<label>&nbsp;show </label><label><input type="checkbox" name="allowbluerib" checked/>blue-</label><label><input type="checkbox" name="allowgreenrib" checked/>green-</label><label><input type="checkbox" name="alloworangerib" checked/>orange-</label><label><input type="checkbox" name="allowredrib" checked/>red-</label><label>coloured ribbons</label><i> - scored colours will still show in histograms</i>
-</br>
-<label><input type="checkbox" name="invertcolour"/>colour ribbons by (NOT order) invertion, normal:black, inverted:lime</label><i> - scored colours will still show around ribbons and in histograms</i>
-</br>
-<label><input type="checkbox" name="untangling_off"/>switch OFF untangling of the ribbons</label><i> - i.e. keep input order with queries first, database next</i>
-</br>
-<label>&nbsp;depth-order ribbons by
+
+</br><label><font color="red">new!</font>&nbsp;use
+<select name="scoreratio2colour">
+  <option value="max" selected="yes">score/max</option>
+  <option value="minmax">(score-min)/(max-min)</option>
+</select></label>
+<label>ratio to assign colours to scores/ribbons</label><i> - '(score-min)/(max-min)' should give more colour range esp. for % identity</i>
+
+</br><label><font color="red">new!</font><input type="checkbox" name="abscolour"/>use absolute score/ribbon colouring</label><i> - incompatible with the ratio above, and currently only allowed with % identity</i>
+
+</br><label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if you ticked above, blue<=<input type="text" size="8" value="50" name="maxB1"/>, green<=<input type="text" size="8" value="75" name="maxG2"/>, orange<=<input type="text" size="8" value="99.9999" name="maxO3"/>, red otherwise</label><i> - be careful, we don't check numbers and logic yet</i>
+
+</br><label>&nbsp;show </label><label><input type="checkbox" name="allowbluerib" checked/>blue-</label><label><input type="checkbox" name="allowgreenrib" checked/>green-</label><label><input type="checkbox" name="alloworangerib" checked/>orange-</label><label><input type="checkbox" name="allowredrib" checked/>red-</label><label>coloured ribbons</label><i> - scored colours will still show in histograms</i>
+
+</br><label><input type="checkbox" name="invertcolour"/>colour ribbons by (NOT order) invertion, normal:black, inverted:lime</label><i> - scored colours will still show around ribbons and in histograms</i>
+
+</br><label><input type="checkbox" name="untangling_off"/>switch OFF untangling of the ribbons</label><i> - i.e. keep input order with queries first, database next</i>
+
+</br><label>&nbsp;depth-order ribbons by
 <select name="z_by">
   <option value="score" selected="yes">score (highest at top)</option>
   <option value="score_rev">reverse score (lowest at top)</option>
   <option value="alnlen">alignment length (longest at top)</option>
   <option value="alnlen_rev">reverse alignment length (shortest at top)</option>
 </select></label>
-</br><label><font color="red">new!</font><input type="checkbox" name="revcomp_q"/>reverse complement QUERY DNA sequences</label><i> - we'll check they're DNA</i>
-</br><label><font color="red">new!</font><input type="checkbox" name="revcomp_d"/>reverse complement DATABASE DNA sequences</label><i> - we'll check they're DNA</i>
+
+</br><label><input type="checkbox" name="revcomp_q"/>reverse complement QUERY DNA sequences</label><i> - we'll check they're DNA</i>
+</br><label><input type="checkbox" name="revcomp_d"/>reverse complement DATABASE DNA sequences</label><i> - we'll check they're DNA</i>
 </br><label><input type="checkbox" name="reverse_qorder"/>reverse ORDER of QUERY ideograms</label><i> - may assist clarity, incompatible with ribbon untangling</i>
 </br><label><input type="checkbox" name="reverse_dorder"/>reverse ORDER of DATABASE ideograms</label><i> - may assist clarity, incompatible with ribbon untangling</i>
 </br><label><input type="checkbox" name="reverse_qorient"/>reverse ORIENTATION of QUERY ideograms</label><i> - ...then read anticlockwisely, may assist clarity with e.g. segment order</i>
 </br><label><input type="checkbox" name="reverse_dorient"/>reverse ORIENTATION of DATABASE ideograms</label><i> - ...then read anticlockwisely, may assist clarity with e.g. segment order</i>
 </br><label><input type="checkbox" name="hide_orient_lights"/>switch OFF orientation lights</label><i> - faint green and red bands at ideogram edges, green-to-red is correct orientation</i>
 </br><label><input type="checkbox" name="no_labels"/>switch OFF sequence labels</label>
+
 </br>
 <label>&nbsp;output to
 <select name="out_type">
@@ -153,8 +166,8 @@ function clearFileInputField(tagId) {
   <option value="500">1000 x 1000</option>
   <option value="750" selected="yes">1500 x 1500</option>
   <option value="1000">2000 x 2000</option>
-</select></label>
-<i> - in pixels</i>
+</select></label><i> - in pixels</i>
+
 </br>
 <label>colour ribbons by
 <select name="annocolour">
@@ -166,6 +179,7 @@ function clearFileInputField(tagId) {
   <option value="database_rainbow_colour">DATABASE 7-colour rainbow</option>
   <option value="database_rainbow_grey">DATABASE grey rainbow</option>
 </select></label><i> - switch off ribbon untangling for rainbows? scored colours will still show around ribbons and in histograms</i>
+
 </br>
 <label>&nbsp;colour ideograms with annotations, if selected above and added below, <a href="example_annotation_and_accepted_colour_names.txt" target="_blank">as in the example</a></label></br>
 <textarea id="annotext" name="annotationtext" class="textarea" placeholder="annotation"></textarea></br>
@@ -177,7 +191,7 @@ function clearFileInputField(tagId) {
 
 </fieldset>
 
-<input type="submit" class="title" value="Circoletto my data" /> or 
+<input type="submit" class="title" value="run Circoletto" /> or 
 <input type="reset" class="title" value="reset" />
 </form>
 
@@ -193,6 +207,10 @@ function clearFileInputField(tagId) {
 
 <h2 id="news">news and updates</h2>
 <p>
+<b>07.09.16 |</b> minor bug in histogram data calculation with absolute scoring, which is only for visualisation performance - you probably didn't even see it</br>
+<b>27.08.16 |</b> % identity colouring can now be absolute, i.e. you can set max % identity for blue, green, and orange, with the rest coloured red</br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(thanks to Dr. Laura Sycuro, University of Calgary, Canada, for the discussion)</br>
+<b>27.08.16 |</b> there's a new (but non-default, yet) mode to assign colours to scores, '(score-min)/(max-min)', that should especially help % identity scoring</br>
 <b>05.07.16 |</b> non-[\w-.] label characters now replaced with '.' instead of '_' to avoid SVG issues, and best hit outline back to black for SVG</br>
 <b>04.07.16 |</b> (DNA) sequences can now be reverse complemented, best hits now outlined with same colour instead of black, tested with latest Circos (0.69-3),
    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and <a href="https://github.com/infspiredBAT/Circoletto" target="_blank">GitHub</a>!</br>
@@ -314,17 +332,7 @@ Also, a ribbon will <b>invert</b> if the local alignment is inverted, i.e. if th
 hosted at the <a href="http://bat.infspire.org/" target="_blank"> Bioinformatics Analysis Team / BAT</a>
 </p>
 
-<!-- Close the div for Content -->
 </div>
-
-<!-- FOOTER -->
-<div class="column span-24 border-top">
-<div id="footer" class="column span-24">
-
-</div>
-</div>
-
-<!-- Close the CSS container-->
 </div>
 
 </body>

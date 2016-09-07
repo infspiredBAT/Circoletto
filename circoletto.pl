@@ -1,4 +1,4 @@
-#!/usr/bin/perl 
+#!/usr/bin/perl -w
 
 $version              = localtime((stat($0))[9]);
 $circos_compatibility = '0.69-3';
@@ -13,11 +13,10 @@ use Bio::Seq;
 $randomer = int(rand(1001)) . $$;
 $randomer = sprintf "%010s", $randomer;
 
-$usage = "
-# Circoletto - visualising sequence similarity with Circos
+$usage = "# Circoletto - visualising sequence similarity with Circos
 # Darzentas N.
 # $version
-# http://bat.infspire.org
+# http://bat.infspire.org | bat\@infspire.org
 
 welcome
 
@@ -26,41 +25,46 @@ before you run Circoletto, be sure to:
 - check / edit (in the code) the two paths to Circos and Circos tools - if we cannot find them, we'll print a warning and exit
 - if you need to increase the max_sequences > 200, you also need to edit max_ideograms in Circos' housekeeping.conf
 
-circoletto.pl 
+circoletto.pl
 
     either
---query     or  --q     -> (path to) the queries
---database  or  --db    -> (path to) the database
+--query     or  --q    (path to) the queries
+--database  or  --db   (path to) the database
     or
---blastout  or  --bl    -> (path to) the BLAST output
+--blastout  or  --bl   (path to) the BLAST output
 
     other (optional) arguments
---best_hit              -> set to show only best hit per query
---best_hit_type         -> best hit type, 'entry' to show all HSPs per best hit [default], or 'local' to show single best HSP
---w_hits                -> set if you want to show only entries with BLAST hits
---z_by                  -> depth-order ribbons by 'score' (highest at top) [default] / 'score_rev' / 'alnlen' (longest at top) / 'alnlen_rev'
---e_value               -> E-value [default: 1e-10]
---gep                   -> gap extension penalty, set to >=2 if you need to constrain it e.g. for genomic data [default: -1]
---flt                   -> set to enable pre-filtering of query sequences
---html_out              -> set to provide BLAST HTML output (runs BLAST again...)
---no_labels             -> set to switch off labels
---out_size              -> set radius of output in pixels, so set to '1000' for a 2000x2000 output [default: 1000]
---out_type              -> output type, either 'svg', or 'png' [default]
---score2colour          -> score to colour ribbons with, 'bit' for bitscore [default], or 'eval' for E-value, or 'id' for % identity
---annotation            -> user provided annotation file, see 'example_annotation.txt'
---annocolour            -> colour ribbons by 'query' or 'database' default ideogram colours or annotation (see --annotation), or by 'query_rainbow_(colour|grey)' or 'database_rainbow_(colour|grey)'
---invertcolour          -> set to colour ribbons by SEQUENCE (i.e. not ORDER) invertion (or reverse complementarity or plus/minus), normal in black, inverted in lime
---untangling_off        -> set to turn off ribbon untangling
---revcomp_q             -> set to reverse complement query DNA sequences
---revcomp_d             -> set to reverse complement database DNA sequences
---reverse_qorder        -> set to reverse ORDER of query sequences, may help clarity
---reverse_dorder        -> set to reverse ORDER of database sequences, may help clarity
---reverse_qorient       -> set to reverse ORIENTATION of query sequences which then need to be read anticlockwisely, may help clarity
---reverse_dorient       -> set to reverse ORIENTATION of database sequences which then need to be read anticlockwisely, may help clarity
---hide_orient_lights    -> set to hide orientation lights at edges of ideograms, read from green (=beginning) to red (=end)
---ribocolours2allow     -> blue, green, orange, red in a format like this (including parentheses) '(green|orange)' or '(blue)' - histograms are not affected
---tblastx               -> run 6-frame tBLASTx for DNA vs DNA
---cpus                  -> number of CPUs to use with BLAST
+--best_hit             set to show only best hit per query
+--best_hit_type        best hit type, 'entry' to show all HSPs per best hit [default], or 'local' to show single best HSP
+--w_hits               set if you want to show only entries with BLAST hits
+--z_by                 depth-order ribbons by 'score' (highest at top) [default] / 'score_rev' / 'alnlen' (longest at top) / 'alnlen_rev'
+--e_value              E-value [default: 1e-10]
+--gep                  gap extension penalty, set to >=2 if you need to constrain it e.g. for genomic data [default: -1]
+--flt                  set to enable pre-filtering of query sequences
+--html_out             set to provide BLAST HTML output (runs BLAST again...)
+--no_labels            set to switch off labels
+--out_size             set radius of output in pixels, so set to '1000' for a 2000x2000 output [default: 1000]
+--out_type             output type, either 'svg', or 'png' [default]
+--score2colour         score to colour ribbons with, 'bit' for bitscore [default], or 'eval' for E-value, or 'id' for % identity
+--scoreratio2colour    score ratio to use for colouring, 'max' for score/max [default], 'minmax' for (score-min)/(max-min) that should give more colour range esp. for % identity
+--abscolour            use absolute scores for colouring, currently only allowed with % identity
+--maxB1                max score for blue
+--maxG2                max score for green
+--maxO3                max score for orange, then it's red
+--annotation           user provided annotation file, see 'example_annotation.txt'
+--annocolour           colour ribbons by 'query' or 'database' default ideogram colours or annotation (see --annotation), or by 'query_rainbow_(colour|grey)' or 'database_rainbow_(colour|grey)'
+--invertcolour         set to colour ribbons by SEQUENCE (i.e. not ORDER) invertion (or reverse complementarity or plus/minus), normal in black, inverted in lime
+--untangling_off       set to turn off ribbon untangling
+--revcomp_q            set to reverse complement query DNA sequences
+--revcomp_d            set to reverse complement database DNA sequences
+--reverse_qorder       set to reverse ORDER of query sequences, may help clarity
+--reverse_dorder       set to reverse ORDER of database sequences, may help clarity
+--reverse_qorient      set to reverse ORIENTATION of query sequences which then need to be read anticlockwisely, may help clarity
+--reverse_dorient      set to reverse ORIENTATION of database sequences which then need to be read anticlockwisely, may help clarity
+--hide_orient_lights   set to hide orientation lights at edges of ideograms, read from green (=beginning) to red (=end)
+--ribocolours2allow    blue, green, orange, red in a format like this (including parentheses) '(green|orange)' or '(blue)' - histograms are not affected
+--tblastx              run 6-frame tBLASTx for DNA vs DNA
+--cpus                 number of CPUs to use with BLAST
 
 ";
 
@@ -88,6 +92,12 @@ my $options_res = GetOptions(
     "out_size:f"                =>  \$out_size,
     "annotation:s"              =>  \$annotation,
     "score2colour:s"            =>  \$score2colour,
+    "scoreratio2colour:s"       =>  \$scoreratio2colour,
+    "abscolour!"                =>  \$abscolour,
+    "maxB1:s"                   =>  \$maxB1,
+    "maxG2:s"                   =>  \$maxG2,
+    "maxO3:s"                   =>  \$maxO3,
+    #"maxR4:s"                   =>  \$maxR4,
     "annocolour|annotate_by:s"  =>  \$annocolour,
     "invertcolour!"             =>  \$invertcolour,
     "no_labels!"	            =>  \$no_labels,
@@ -120,7 +130,7 @@ unless ($online) { # ... i.e. offline
     unless ((defined($query) && defined($database)) || defined($blastout)) { die $usage; }
     $pwd       = '';
     $dir       = 'dir  = .';
-    if ($override) {                 $factor = 50;   
+    if ($override) {                 $factor = 50;
     } else {                         $factor = 1; }
     $max_sequences          =  200 * $factor;
     $max_ribbons            = 1000 * $factor;
@@ -133,7 +143,7 @@ unless ($online) { # ... i.e. offline
     $pwd       = '/labs/bat/www/tools/results/circoletto/';
     $dir       = 'dir = /labs/bat/www/tools/results/circoletto';
     $gep       = '-1';
-    if ($override) {                 $factor = 50;   
+    if ($override) {                 $factor = 50;
     } else {                         $factor = 1; }
     $max_sequences          =  200 * $factor;
     $max_ribbons            = 1000 * $factor;
@@ -149,6 +159,11 @@ unless (defined $e_value) {             $e_value = '1e-10'; }
 unless (defined $gep) {                 $gep = '-1'; }
 unless (defined $flt) {                 $flt = 0; }
 unless (defined $score2colour) {        $score2colour = 'bit'; }
+unless (defined $scoreratio2colour) {   $scoreratio2colour = 'max'; }
+unless (defined $abscolour) {           $abscolour = 0; }
+unless (defined $maxB1) {               $maxB1 = 50; }
+unless (defined $maxG2) {               $maxG2 = 75; }
+unless (defined $maxO3) {               $maxO3 = 99.9999; }
 unless (defined $best_hit) {            $best_hit = 0; }
 unless (defined $best_hit_type) {       $best_hit_type = 'entry'; }
 unless (defined $w_hits) {              $w_hits = 0; }
@@ -196,6 +211,10 @@ open STDERR, '>/dev/null';
 'eval'    , 'E-value',
 'id'      , '% identity'
 );
+%scoreratio2colour4report = (
+'max'     , 'score/max',
+'minmax'  , '(score-min)/(max-min)'
+);
 $greenlight = 'lgreen';
 $redlight   = 'lred';
 
@@ -215,13 +234,13 @@ if (defined($query) && defined($database)) {
             $label = (split / /, $_)[0];
 # update annotation FASTA loading when you change these
             $label =~ s/^>//;
-            $label =~ s/[^\w-.]/_/g;
+            $label =~ s/[^\w\-.]/_/g;
             $label =~ s/_{1,}/./g;
             $uniq_label = substr($label,0,$max_label_len);
             while (defined($uniq_labels{$uniq_label})) {
                 $randomer4label = int(rand(1001));
                 $randomer4label = sprintf "%04s", $randomer4label;
-                $uniq_label = substr($label,0,$max_label_len-4) . "$randomer4label"; 
+                $uniq_label = substr($label,0,$max_label_len-4) . "$randomer4label";
             }
             $uniq_labels{$label} = $uniq_label;
             $uniq_labels{$uniq_label} = $uniq_label;
@@ -238,7 +257,7 @@ if (defined($query) && defined($database)) {
         }
     }
     close FASTA;
-    
+
     foreach $label (keys %query_entries) {
         if (length($sequences{$label}) > 20) {
             $seq = Bio::Seq->new();
@@ -257,14 +276,14 @@ if (defined($query) && defined($database)) {
     } else {
         print "(!) your query file apparently has no sequence label(s), or both nucleotide and amino acid sequences,\nor confusing/invalid characters, or too little sequence - exiting\n"; exit;
     }
-    
+
     if ($flag) {                                              print "(!) your query file is incomplete (most probably) - exiting\n"; exit;
     } else {
         if (keys(%query_entries) == 0) {                      print "(!) your query file is either empty or not in right format - exiting\n"; exit;
             } elsif (keys(%query_entries) > $max_sequences) { print "(!) your query file contains too many sequences (" . keys(%query_entries) . " - we allow up to $max_sequences) - exiting\n"; exit;
         } else {                                              print "(=) " . keys(%query_entries) . " entries found in query file\n"; }
     }
-    
+
     if ($q_seq_type eq 'dna' && $revcomp_q) { print "(?) reverse complementing query DNA sequences\n"; }
     $clean = '';
     $#non_uniq_labels = -1;
@@ -280,7 +299,7 @@ if (defined($query) && defined($database)) {
     if (scalar(@non_uniq_labels) > 0) {
         print "(!) the max label length (currently $max_label_len) causes some query sequence labels\n(" . join(", ",@non_uniq_labels) . ") to be redundant... please change the first $max_label_len characters accordingly - exiting\n"; exit;
     }
-    
+
     if ($reverse_qorder) {
         print "(?) reversing order of query ideograms\n";
         @{$ordered{query}} = reverse(@{$ordered{query}});
@@ -300,13 +319,13 @@ if (defined($query) && defined($database)) {
             if (/^>/) {
                 $label = (split / /, $_)[0];
                 $label =~ s/^>//;
-                $label =~ s/[^\w-.]/_/g;
+                $label =~ s/[^\w\-.]/_/g;
                 $label =~ s/_{1,}/./g;
                 $uniq_label = substr($label,0,$max_label_len);
                 while (defined($uniq_labels{$uniq_label})) {
                     $randomer4label = int(rand(1001));
                     $randomer4label = sprintf "%04s", $randomer4label;
-                    $uniq_label = substr($label,0,$max_label_len-4) . "$randomer4label"; 
+                    $uniq_label = substr($label,0,$max_label_len-4) . "$randomer4label";
                 }
                 $uniq_labels{$label} = $uniq_label;
                 $uniq_labels{$uniq_label} = $uniq_label;
@@ -334,6 +353,7 @@ if (defined($query) && defined($database)) {
                 } else {
                     $seq->seq($sequences{$label});
                     ++$d_seq_types{$seq->alphabet};
+                    #print $seq->alphabet . "\t$original_labels{$label}\n";
                 }
             }
         }
@@ -370,7 +390,7 @@ if (defined($query) && defined($database)) {
             print "(?) reversing order of database ideograms\n";
             @{$ordered{database}} = reverse(@{$ordered{database}});
         }
-    
+
         open (CLEAN, ">$database.clean");
         print CLEAN $clean;
         close CLEAN;
@@ -450,7 +470,7 @@ chomp $grep4queries;
 unless ($grep4queries =~ /\d/ && $grep4queries > 0) { print "(!) could not find any queries, or BLAST output is in wrong format - exiting\n"; exit; }
 $max_hits_per_query = sprintf "%.0f", $max_ribbons / $grep4queries;
 %hsp = ();
-my $in = new Bio::SearchIO(-format => 'blast', 
+my $in = new Bio::SearchIO(-format => 'blast',
                            -file   => "$blastout");
 while( my $result = $in->next_result ) {
     $blastout_query = $result->query_name;
@@ -458,13 +478,13 @@ while( my $result = $in->next_result ) {
     if (defined($uniq_labels{$uniq_label})) {
         $blastout_query = $uniq_labels{$uniq_label};
     } else {
-        $blastout_query =~ s/[^\w-.]/_/g;
+        $blastout_query =~ s/[^\w\-.]/_/g;
         $blastout_query =~ s/_{1,}/./g;
         $uniq_label = substr($blastout_query,0,$max_label_len);
         while (defined($uniq_labels{$uniq_label})) {
             $randomer4label = int(rand(1001));
             $randomer4label = sprintf "%04s", $randomer4label;
-            $uniq_label = substr($blastout_query,0,$max_label_len-4) . "$randomer4label"; 
+            $uniq_label = substr($blastout_query,0,$max_label_len-4) . "$randomer4label";
         }
         $uniq_labels{$blastout_query} = $uniq_label;
         $uniq_labels{$uniq_label} = $uniq_label;
@@ -483,13 +503,13 @@ while( my $result = $in->next_result ) {
             if (defined($uniq_labels{$uniq_label})) {
                 $blastout_hit = $uniq_labels{$uniq_label};
             } else {
-                $blastout_hit =~ s/[^\w-.]/_/g;
+                $blastout_hit =~ s/[^\w\-.]/_/g;
                 $blastout_hit =~ s/_{1,}/./g;
                 $uniq_label = substr($blastout_hit,0,$max_label_len);
                 while (defined($uniq_labels{$uniq_label})) {
                     $randomer4label = int(rand(1001));
                     $randomer4label = sprintf "%04s", $randomer4label;
-                    $uniq_label = substr($blastout_hit,0,$max_label_len-4) . "$randomer4label"; 
+                    $uniq_label = substr($blastout_hit,0,$max_label_len-4) . "$randomer4label";
                 }
                 $uniq_labels{$blastout_hit} = $uniq_label;
                 $uniq_labels{$uniq_label} = $uniq_label;
@@ -520,7 +540,7 @@ while( my $result = $in->next_result ) {
                         } else {                           $score = $hithsp->bits; }
                         $qstart = $hithsp->start('query');
                         $qend = $hithsp->end('query');
-                        $qstrand = $hithsp->strand('query');
+                        #$qstrand = $hithsp->strand('query');
                         $hstrand = $hithsp->strand('hit');
                         if ($hstrand == 0 || $hstrand == 1) {
                             $hstart = $hithsp->start('hit');
@@ -560,7 +580,7 @@ unless (defined($query) && defined($database)) {
     } else {                                             print "(=) " . keys(%database_entries) . " database entries found\n"; }
 
     if (keys(%lengths) > $max_sequences) {               print "(!) you have too many entries in total (" . keys(%lengths) . " - we allow up to $max_sequences) - exiting\n"; exit; }
-    
+
     if ($reverse_qorder) {
         print "(?) reversing order of query ideograms\n";
         @{$ordered{query}} = reverse(@{$ordered{query}});
@@ -601,7 +621,7 @@ if (defined($annotation)) {
             $label = (split / /, $_)[0];
 # always update from above
             $label =~ s/^>//;
-            $label =~ s/[^\w-.]/_/g;
+            $label =~ s/[^\w\-.]/_/g;
             $label =~ s/_{1,}/./g;
             if (defined($uniq_labels{$label})) {
                 $label = $uniq_labels{$label};
@@ -641,18 +661,6 @@ if (defined($annotation)) {
     } else {                      print "(!) no annotation loaded although you provided a file, please check\n"; }
 }
 
-$uid = 0;
-foreach $entry (sort {$b<=>$a} keys %{$alnlens{$set2consider}}) { $maxalnlen = $entry; last; }
-foreach $score (sort {$b<=>$a} keys %{$scores{$set2consider}}) {  $maxscore  = $score; last; }
-$cold = 0; $warm = 0; $hot = 0;
-foreach $score (keys %{$scores{$set2consider}}) {
-    $scoreratio = $score / $maxscore;
-    if (    $scoreratio <= 0.5) { $cold += $scores{$set2consider}{$score};
-    } else {
-        if ($scoreratio > 0.75) { $hot  += $scores{$set2consider}{$score}; }
-                                  $warm += $scores{$set2consider}{$score};
-    }
-}
 print "(?) creating ribbons from $hsp{$set2consider} local alignments\n";
 if ($annocolour ne 'scores' && $invertcolour) { print "(!) cannot colour ribbons by both invertion and ideogram/domain/rainbow colours - exiting\n"; exit;
 } elsif ($annocolour eq 'query') {              print "(?) colouring ribbons by query ideogram/domain colours and $score2colour4report{$score2colour}\n";
@@ -665,8 +673,34 @@ if ($z_by eq 'score') {                         print "(?) depth-ordering ribbon
 } elsif ($z_by eq 'score_rev') {                print "(?) depth-ordering ribbons by reverse score, lowest-scoring at the top\n";
 } elsif ($z_by eq 'alnlen') {                   print "(?) depth-ordering ribbons by alignment length, longest at the top\n";
 } else {                                        print "(?) depth-ordering ribbons by reverse alignment length, shortest at the top\n"; }
-$hiscolours2allow = "(blue|green|orange|red)";
-                                                print "(?) checking histogram data\n";
+if ($abscolour && $score2colour ne 'id') {      print "(!) absolute colouring currently only allowed with % identity - disabling\n"; $abscolour = 0; }
+if ($abscolour) {                               print "(?) using absolute colouring with blue<=$maxB1, green<=$maxG2, orange<=$maxO3, red>$maxO3\n";
+} else {                                        print "(?) using '$scoreratio2colour4report{$scoreratio2colour}' ratio colouring with blue<=0.25, green<=0.50, orange<=0.75, red>0.75\n"; }
+
+foreach $entry (sort {$b<=>$a} keys %{$alnlens{$set2consider}}) { $maxalnlen = $entry; last; }
+foreach $score (sort {$b<=>$a} keys %{$scores{$set2consider}}) {  $maxscore  = $score; last; }
+foreach $score (sort {$a<=>$b} keys %{$scores{$set2consider}}) {  $minscore  = $score; last; }
+print "(=) min and max $score2colour4report{$score2colour}: ".(sprintf "%.2f", $minscore)." and ".(sprintf "%.2f", $maxscore)."\n";
+
+$cold = 0; $warm = 0; $hot = 0;
+foreach $score (keys %{$scores{$set2consider}}) {
+    if ($abscolour && $score2colour eq 'id') {
+        if (     $score <= $maxB1) { $cold += $scores{$set2consider}{$score};
+        } else {
+            if ( $score >  $maxO3) { $hot  += $scores{$set2consider}{$score}; }
+                                     $warm += $scores{$set2consider}{$score}; }
+    } else {
+        if ($scoreratio2colour eq 'minmax') {
+                 $scoreratio = ($score-$minscore) / ($maxscore-$minscore);             
+        } else { $scoreratio = $score / $maxscore; } # max
+        if     ( $scoreratio <= 0.5) { $cold += $scores{$set2consider}{$score};
+        } else {
+            if ( $scoreratio > 0.75) { $hot  += $scores{$set2consider}{$score}; }
+                                       $warm += $scores{$set2consider}{$score}; }
+    }
+}
+
+$hiscolours2allow = "(blue|green|orange|red)";  print "(?) checking histogram data\n";
 if ($cold > $max_his_data) {
     if ($warm > $max_his_data) {
         if ($hot > $max_his_data) {             print "(!) too much histogram data - disabling\n";                        $hiscolours2allow = 'black';
@@ -674,18 +708,29 @@ if ($cold > $max_his_data) {
     } else {                                    print "(!) too much histogram data, will only consider 'warm' ribbons\n"; $hiscolours2allow = '(orange|red)'; }
 }
 unless ($ribocolours2allow eq "(blue|green|orange|red)") { print "(?) showing only $ribocolours2allow ribbons, histograms are not affected\n"; }
+
 open (LINKS, ">$blastout.links") || die "Cannot create $blastout.links";
+$uid = 0;
 foreach $query (keys %{$mem{$set2consider}}) {
     $entries_w_hits{$query} = 1;
     $per_query = 0;
     %best_hit_entries = ();
     foreach $score (sort {$b<=>$a} keys %{$mem{$set2consider}{$query}}) {
-                 $scoreratio = $score / $maxscore;
-        if (     $scoreratio <= 0.25) {                        $colour = $ribocolours{q1};
-        } elsif ($scoreratio >  0.25 && $scoreratio <= 0.5) {  $colour = $ribocolours{q2};
-        } elsif ($scoreratio >  0.5  && $scoreratio <= 0.75) { $colour = $ribocolours{q3};
-        } else {                                               $colour = $ribocolours{q4}; }
-                                                          $best_colour = $out_type eq 'png' ? $colour . "_a1" : "black_a1";
+        if ($abscolour && $score2colour eq 'id') {
+            if     ( $score <= $maxB1) {                     $colour = $ribocolours{q1};
+            } elsif ($score >  $maxB1 && $score <= $maxG2) { $colour = $ribocolours{q2};
+            } elsif ($score >  $maxG2 && $score <= $maxO3) { $colour = $ribocolours{q3};
+            } else {                                         $colour = $ribocolours{q4}; }
+        } else {
+            if ($scoreratio2colour eq 'minmax') {
+                     $scoreratio = ($score-$minscore) / ($maxscore-$minscore);             
+            } else { $scoreratio = $score / $maxscore; } # max
+            if     ( $scoreratio <= 0.25) {                        $colour = $ribocolours{q1};
+            } elsif ($scoreratio >  0.25 && $scoreratio <= 0.5 ) { $colour = $ribocolours{q2};
+            } elsif ($scoreratio >  0.5  && $scoreratio <= 0.75) { $colour = $ribocolours{q3};
+            } else {                                               $colour = $ribocolours{q4}; }
+        }
+        $best_colour = $out_type eq 'png' ? $colour . "_a1" : "black_a1";
         foreach $database (keys %{$mem{$set2consider}{$query}{$score}}) {
             if (($best_hit && $best_hit_type eq 'entry' && defined($best_hit_entries{$database})) || keys(%best_hit_entries)==0 || !$best_hit) {
                 $best_hit_entries{$database} = 1;
@@ -698,11 +743,7 @@ foreach $query (keys %{$mem{$set2consider}}) {
                         } else {                                        $stroker = ",stroke_color=$best_colour,stroke_thickness=2"; }
                     } else {
                         if ($annocolour ne 'scores' || $invertcolour) { $stroker = ",stroke_color=$colour"."_a2".",stroke_thickness=1";
-                        } else {                                        $stroker = "";
-                            #$a_ratio = abs($a_to - $a_from) / $lensum2show;
-                            #if ($a_ratio < 0.005) {                     $stroker = ',stroke_thickness=0';
-                            #} else {                                    $stroker = ",stroke_color=$ribocolours{stroke},stroke_thickness=1"; }
-                        }
+                        } else {                                        $stroker = ""; }
                     }
                     foreach $daln (keys %{$mem{$set2consider}{$query}{$score}{$database}{$qaln}}) {
                         $b_from = (split / /, $daln)[0];
@@ -727,7 +768,7 @@ foreach $query (keys %{$mem{$set2consider}}) {
                                     $ribocolour = $annotations{$query}{domains}{$dom_from}{col} . "_a3";
                                     last;
                                 }
-                            }                            
+                            }
                         } elsif ($annocolour =~ /database/) {
                             if (defined($annotations{$database}{ideo_colour})) { $ribocolour = $annotations{$database}{ideo_colour} . "_a3";
                             } else {                                             $ribocolour = $kolours{database} . "_a3"; }
@@ -737,7 +778,7 @@ foreach $query (keys %{$mem{$set2consider}}) {
                                     $ribocolour = $annotations{$database}{domains}{$dom_from}{col} . "_a3";
                                     last;
                                 }
-                            }                            
+                            }
                         }
                         if ($colour =~ /$hiscolours2allow/) {
                             if ($a_from > $a_to) { for ($i=$a_to;$i<=$a_from;$i++) { ++$histogram{$query}{$i}{$colour}; }
@@ -892,7 +933,6 @@ foreach $label (sort keys %hismem) {
     }
 }
 close HIS;
-%his_mem = ();
 $axis_thickness = 1;
 $axis_spacing   = int($max4his / 4);
 if ($axis_spacing == 0) {
@@ -906,7 +946,7 @@ unless ($untangling_off) {
         if (keys(%lengths) <= 2) {            print "(!) skipping untangling the $uid ribbons for less than 3 sequences\n";
         } elsif ($uid <= $max_ribbons2untangle) {
             print "(?) untangling the $uid ribbons\n";
-            $untangle = `nice perl $path2circostools/tools/orderchr/bin/orderchr -links $blastout.links -karyotype $blastout.karyotype > $blastout.chr_order`;
+            `nice perl $path2circostools/tools/orderchr/bin/orderchr -links $blastout.links -karyotype $blastout.karyotype > $blastout.chr_order`;
             open (ORDER, "$blastout.chr_order") || die "Cannot read $blastout.chr_order";
             while (<ORDER>) {
                 if (/chromosomes_order/) {
@@ -1015,8 +1055,8 @@ grey-rainbow-2      = 200, 200, 200
 grey-rainbow-3      = 170, 170, 170
 grey-rainbow-4      = 140, 140, 140
 grey-rainbow-5      = 110, 110, 110
-grey-rainbow-6      = 80, 80, 80 
-grey-rainbow-7      = 50, 50, 50 
+grey-rainbow-6      = 80, 80, 80
+grey-rainbow-7      = 50, 50, 50
 </colors>
 
 <ideogram>
@@ -1116,10 +1156,10 @@ spacing             = $axis_spacing
 close CONF;
 
 print "(?) running Circos\n";
-$circos = `nice perl $path2circos/bin/circos -noparanoid -conf $blastout.conf`;
-print $circos unless $online;
+`nice perl $path2circos/bin/circos -noparanoid -conf $blastout.conf > $blastout.circos.log`;
+sleep(1) if $online;
 if (-e "$blastout.$out_type") { print "(=) done: $blastout.$out_type $blastout\n";
-} else {                        print "(!) there was an error running Circos (no output detected) - exiting\n"; exit; }
+} else {                        print "(!) there was an error running Circos (no output detected), maybe try once more or something different? - exiting\n"; exit; }
 
 
 sub revcomp {
