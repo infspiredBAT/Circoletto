@@ -64,8 +64,8 @@ $databasetext       = $cgi->param( "databasetext" ); # || error( $cgi, "no datab
 $query              = $cgi->param( "queryfile" ); # || error( $cgi, "no query FASTA received" );
 $database           = $cgi->param( "databasefile" ); # || error( $cgi, "no database FASTA received" );
 $blastout           = $cgi->param( "blastout" ); # || error( $cgi, "no BLAST output received" );
-if ($querytext =~ /href ?=/) { error( $cgi, "if you are not a spammer, remove href tag and have another go" ); }
-if ($databasetext =~ /href ?=/) { error( $cgi, "if you are not a spammer, remove href tag and have another go" ); }
+if (defined $querytext    && $querytext    =~ /href ?=/) { error( $cgi, "if you are not a spammer, remove href tag and have another go" ); }
+if (defined $databasetext && $databasetext =~ /href ?=/) { error( $cgi, "if you are not a spammer, remove href tag and have another go" ); }
 if ($query && $querytext) { error( $cgi, "you have provided query in both text and file format - reset the form if you have to" ); }
 if ($database && $databasetext) { error( $cgi, "you have provided database in both text and file format - reset the form if you have to" ); }
 if (($query || $querytext) && ($database || $databasetext) && $blastout) { error( $cgi, "please either provide two FASTA files, or a BLAST output (you currently provide all three!) - reset the form if you have to" ); }
@@ -77,6 +77,11 @@ $best_hit_type      = $cgi->param( "best_hit_type" );
 $w_hits             = $cgi->param( "w_hits" );
 $no_labels          = $cgi->param( "no_labels" );
 $score2colour       = $cgi->param( "score2colour" );
+$scoreratio2colour  = $cgi->param( "scoreratio2colour" );
+$abscolour          = $cgi->param( "abscolour" );
+$maxB1              = $cgi->param( "maxB1" );
+$maxG2              = $cgi->param( "maxG2" );
+$maxO3              = $cgi->param( "maxO3" );
 $untangling_off     = $cgi->param( "untangling_off" );
 $revcomp_q		    = $cgi->param( "revcomp_q" );
 $revcomp_d	        = $cgi->param( "revcomp_d" );
@@ -99,6 +104,7 @@ $hide_orient_lights = $cgi->param( "hide_orient_lights" );
 $tblastx            = $cgi->param( "tblastx" );
 if ($annotation && $annotationtext) { error( $cgi, "you have provided annotation in both text and file format - reset the form if you have to" ); }
 
+unless (defined($abscolour)) {			$abscolour4script = '';			} else { $abscolour4script			= '--abscolour'; }
 unless (defined($flt)) {				$flt4script = '';				} else { $flt4script 				= '--flt'; }
 unless (defined($best_hit)) {			$best_hit4script = '';			} else { $best_hit4script 			= "--best_hit --best_hit_type $best_hit_type"; }
 unless (defined($w_hits)) {				$w_hits4script = '';			} else { $w_hits4script 			= '--w_hits';}
@@ -279,13 +285,13 @@ if ($version2run == 2) {
 
     `perl -pi -e 's/\r//g' $upload_dir/$query$randomer`;
     `perl -pi -e 's/\r//g' $upload_dir/$database$randomer`;
-	$circoletto_command = "circoletto.pl --online --cpus $cpus --query $upload_dir/$query$randomer --database $upload_dir/$database$randomer --out_type $out_type --e_value $e_value $tblastx4script $flt4script $best_hit4script $w_hits4script $no_labels4script --score2colour $score2colour $untangling_off4script $revcomp_q4script $revcomp_d4script $reverse_qorder4script $reverse_dorder4script $reverse_qorient4script $reverse_dorient4script --out_size $out_size $annotation4script $invertcolour4script $ribocolours2allow4script --z_by $z_by $hide_orient_lights4script";
+	$circoletto_command = "circoletto.pl --online --cpus $cpus --query $upload_dir/$query$randomer --database $upload_dir/$database$randomer --out_type $out_type --e_value $e_value $tblastx4script $flt4script $best_hit4script $w_hits4script $no_labels4script --score2colour $score2colour --scoreratio2colour $scoreratio2colour $abscolour4script --maxB1 $maxB1 --maxG2 $maxG2 --maxO3 $maxO3 $untangling_off4script $revcomp_q4script $revcomp_d4script $reverse_qorder4script $reverse_dorder4script $reverse_qorient4script $reverse_dorient4script --out_size $out_size $annotation4script $invertcolour4script $ribocolours2allow4script --z_by $z_by $hide_orient_lights4script";
     `perl /labs/bat/www/tools/cgi-bin/limitresources.pl --command "nice perl $circoletto_command" --log $log --seconds $max_time --memory $max_mem > $results_filename &`;
     
 } elsif ($version2run == 1) {
 
     `perl -pi -e 's/\r//g' $upload_dir/$blastout$randomer`;
-	$circoletto_command = "circoletto.pl --online --cpus $cpus --blastout $upload_dir/$blastout$randomer --out_type $out_type $best_hit4script $w_hits4script $no_labels4script --score2colour $score2colour $untangling_off4script $revcomp_q4script $revcomp_d4script $reverse_qorder4script $reverse_dorder4script $reverse_qorient4script $reverse_dorient4script --out_size $out_size $annotation4script $invertcolour4script $ribocolours2allow4script --z_by $z_by $hide_orient_lights4script";
+	$circoletto_command = "circoletto.pl --online --cpus $cpus --blastout $upload_dir/$blastout$randomer --out_type $out_type $best_hit4script $w_hits4script $no_labels4script --score2colour $score2colour --scoreratio2colour $scoreratio2colour $abscolour4script --maxB1 $maxB1 --maxG2 $maxG2 --maxO3 $maxO3 $untangling_off4script $revcomp_q4script $revcomp_d4script $reverse_qorder4script $reverse_dorder4script $reverse_qorient4script $reverse_dorient4script --out_size $out_size $annotation4script $invertcolour4script $ribocolours2allow4script --z_by $z_by $hide_orient_lights4script";
     `perl /labs/bat/www/tools/cgi-bin/limitresources.pl --command "nice perl $circoletto_command" --log $log --seconds $max_time --memory $max_mem > $results_filename &`;
 
 } else { error( $cgi, "we seem to have multiple input data - reset the form if you have to" ); }
@@ -384,17 +390,7 @@ $html2print .= qq(
 hosted at the <a href="http://bat.infspire.org/" target="_blank"> Bioinformatics Analysis Team / BAT</a>
 </p>
 
-<!-- Close the div for Content -->
 </div>
-
-<!-- FOOTER -->
-<div class="column span-24 border-top">
-<div id="footer" class="column span-24">
-
-</div>
-</div>
-
-<!-- Close the CSS container-->
 </div>
 
 </body>
@@ -417,7 +413,7 @@ sub error {
     print $cgi->header( "text/html" ),
           $cgi->start_html( "error @ the BAT cave" ),
           $cgi->h1( "error @ the BAT cave" ),
-          $cgi->p( "your upload was not procesed because the following error occured: " ),
+          $cgi->p( "your upload was not processed because the following error occured: " ),
           $cgi->p( $cgi->i( $reason ) ),
           $cgi->end_html;
     exit;
