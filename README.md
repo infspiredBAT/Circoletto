@@ -15,7 +15,7 @@ before you run Circoletto, be sure to:
 - if you need to increase the max_sequences > 200, you also need to edit max_ideograms in Circos' housekeeping.conf
 </br>
 circoletto.pl
-
+</br>
  either
 --query     or  --q    (path to) the queries
 --database  or  --db   (path to) the database
