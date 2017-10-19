@@ -21,7 +21,7 @@ circoletto.pl
 --database  or  --db   (path to) the database
  or
 --blastout  or  --bl   (path to) the BLAST output
-
+</br>
    other (optional) arguments
 --out_dir              output directory, otherwise pwd
 --out_name             output basename (extension will be added automatically)
