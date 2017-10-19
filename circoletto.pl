@@ -34,6 +34,8 @@ circoletto.pl
 --blastout  or  --bl   (path to) the BLAST output
 
     other (optional) arguments
+--out_dir              output directory, otherwise pwd
+--out_name             output basename (extension will be added automatically)
 --best_hit             set to show only best hit per query
 --best_hit_type        best hit type, 'entry' to show all HSPs per best hit [default], or 'local' to show single best HSP
 --w_hits               set if you want to show only entries with BLAST hits
@@ -72,6 +74,9 @@ my $options_res = GetOptions(
     "query|q:s"                 =>  \$query,
     "database|db:s"             =>  \$database,
     "blastout|bl:s"             =>  \$blastout,
+    "out_dir:s"                 =>  \$out_dir,
+    "out_name:s"                =>  \$out_name,
+    "out_size:f"                =>  \$out_size,
     "out_type:s"                =>  \$out_type,
     "e_value|e-value|evalue:s"  =>  \$e_value,
     "gep:s"                     =>  \$gep,
@@ -89,7 +94,6 @@ my $options_res = GetOptions(
     "reverse_dorient!"          =>  \$reverse_dorient,
     "hide_orient_lights!"       =>  \$hide_orient_lights,
     "ribocolours2allow:s"       =>  \$ribocolours2allow,
-    "out_size:f"                =>  \$out_size,
     "annotation:s"              =>  \$annotation,
     "score2colour:s"            =>  \$score2colour,
     "scoreratio2colour:s"       =>  \$scoreratio2colour,
@@ -101,6 +105,7 @@ my $options_res = GetOptions(
     "annocolour|annotate_by:s"  =>  \$annocolour,
     "invertcolour!"             =>  \$invertcolour,
     "no_labels!"	            =>  \$no_labels,
+    "dirty_labels!"	            =>  \$dirty_labels,
     "tblastx!"  	            =>  \$tblastx,
     "override!"  	            =>  \$override,
     "ltrphyler!"  	            =>  \$ltrphyler,
@@ -128,8 +133,8 @@ unless ($path2circos_ok && $path2circostools_ok) { print "(!) please edit paths 
 unless ($online) { # ... i.e. offline
 
     unless ((defined($query) && defined($database)) || defined($blastout)) { die $usage; }
-    $pwd       = '';
-    $dir       = 'dir  = .';
+    $out_dir   = defined $out_dir ? "$out_dir/" : '.';
+    $dir       = "dir  = $out_dir";
     if ($override) {                 $factor = 50;
     } else {                         $factor = 1; }
     $max_sequences          =  200 * $factor;
@@ -140,7 +145,7 @@ unless ($online) { # ... i.e. offline
 
 } else {
 
-    $pwd       = '/labs/bat/www/tools/results/circoletto/';
+    $out_dir   = '/labs/bat/www/tools/results/circoletto/';
     $dir       = 'dir = /labs/bat/www/tools/results/circoletto';
     $gep       = '-1';
     if ($override) {                 $factor = 50;
@@ -153,7 +158,7 @@ unless ($online) { # ... i.e. offline
 
 }
 
-unless (defined $max_label_len) {       $max_label_len = 20; }
+unless (defined $max_label_len) {       $max_label_len = 20; } # 20
 unless (defined $out_type) {            $out_type = 'png'; }
 unless (defined $e_value) {             $e_value = '1e-10'; }
 unless (defined $gep) {                 $gep = '-1'; }
@@ -170,6 +175,7 @@ unless (defined $w_hits) {              $w_hits = 0; }
 unless (defined $annocolour) {          $annocolour = 'scores'; }
 unless (defined $invertcolour) {        $invertcolour = 0; }
 unless (defined $no_labels) {           $no_labels = 0; }
+unless (defined $dirty_labels) {        $dirty_labels = 0; }
 unless (defined $untangling_off) {      $untangling_off = 0; }
 unless (defined $revcomp_q) {           $revcomp_q = 0; }
 unless (defined $revcomp_d) {           $revcomp_d = 0; }
@@ -234,8 +240,8 @@ if (defined($query) && defined($database)) {
             $label = (split / /, $_)[0];
 # update annotation FASTA loading when you change these
             $label =~ s/^>//;
-            $label =~ s/[^\w\-.]/_/g;
-            $label =~ s/_{1,}/./g;
+            $label =~ s/[^\w\-.]/_/g unless $dirty_labels;
+            $label =~ s/_{1,}/./g    unless $dirty_labels;
             $uniq_label = substr($label,0,$max_label_len);
             while (defined($uniq_labels{$uniq_label})) {
                 $randomer4label = int(rand(1001));
@@ -319,8 +325,8 @@ if (defined($query) && defined($database)) {
             if (/^>/) {
                 $label = (split / /, $_)[0];
                 $label =~ s/^>//;
-                $label =~ s/[^\w\-.]/_/g;
-                $label =~ s/_{1,}/./g;
+                $label =~ s/[^\w\-.]/_/g unless $dirty_labels;
+                $label =~ s/_{1,}/./g    unless $dirty_labels;
                 $uniq_label = substr($label,0,$max_label_len);
                 while (defined($uniq_labels{$uniq_label})) {
                     $randomer4label = int(rand(1001));
@@ -444,7 +450,7 @@ if (defined($query) && defined($database)) {
     $status = $? >> 8; unless ($status==0) { print "(!) there was an error running formatdb on your database - exiting\n"; exit; }
     if ($flt) {$flt = 'T';
     } else {   $flt = 'F'; }
-    $blastout = "$pwd" . "cl$randomer.blasted";
+    $blastout = "$out_dir" . "cl$randomer.blasted";
     if ($best_hit) {
         $v4blast = 1;
         $b4blast = 1;
@@ -478,8 +484,8 @@ while( my $result = $in->next_result ) {
     if (defined($uniq_labels{$uniq_label})) {
         $blastout_query = $uniq_labels{$uniq_label};
     } else {
-        $blastout_query =~ s/[^\w\-.]/_/g;
-        $blastout_query =~ s/_{1,}/./g;
+        $blastout_query =~ s/[^\w\-.]/_/g unless $dirty_labels;
+        $blastout_query =~ s/_{1,}/./g    unless $dirty_labels;
         $uniq_label = substr($blastout_query,0,$max_label_len);
         while (defined($uniq_labels{$uniq_label})) {
             $randomer4label = int(rand(1001));
@@ -503,8 +509,8 @@ while( my $result = $in->next_result ) {
             if (defined($uniq_labels{$uniq_label})) {
                 $blastout_hit = $uniq_labels{$uniq_label};
             } else {
-                $blastout_hit =~ s/[^\w\-.]/_/g;
-                $blastout_hit =~ s/_{1,}/./g;
+                $blastout_hit =~ s/[^\w\-.]/_/g unless $dirty_labels;
+                $blastout_hit =~ s/_{1,}/./g    unless $dirty_labels;
                 $uniq_label = substr($blastout_hit,0,$max_label_len);
                 while (defined($uniq_labels{$uniq_label})) {
                     $randomer4label = int(rand(1001));
@@ -621,8 +627,8 @@ if (defined($annotation)) {
             $label = (split / /, $_)[0];
 # always update from above
             $label =~ s/^>//;
-            $label =~ s/[^\w\-.]/_/g;
-            $label =~ s/_{1,}/./g;
+            $label =~ s/[^\w\-.]/_/g unless $dirty_labels;
+            $label =~ s/_{1,}/./g    unless $dirty_labels;
             if (defined($uniq_labels{$label})) {
                 $label = $uniq_labels{$label};
             } else {
@@ -691,7 +697,7 @@ foreach $score (keys %{$scores{$set2consider}}) {
                                      $warm += $scores{$set2consider}{$score}; }
     } else {
         if ($scoreratio2colour eq 'minmax') {
-                 $scoreratio = ($score-$minscore) / ($maxscore-$minscore);             
+                 $scoreratio = ($score-$minscore) / ($maxscore-$minscore);
         } else { $scoreratio = $score / $maxscore; } # max
         if     ( $scoreratio <= 0.5) { $cold += $scores{$set2consider}{$score};
         } else {
@@ -723,7 +729,7 @@ foreach $query (keys %{$mem{$set2consider}}) {
             } else {                                         $colour = $ribocolours{q4}; }
         } else {
             if ($scoreratio2colour eq 'minmax') {
-                     $scoreratio = ($score-$minscore) / ($maxscore-$minscore);             
+                     $scoreratio = ($score-$minscore) / ($maxscore-$minscore);
             } else { $scoreratio = $score / $maxscore; } # max
             if     ( $scoreratio <= 0.25) {                        $colour = $ribocolours{q1};
             } elsif ($scoreratio >  0.25 && $scoreratio <= 0.5 ) { $colour = $ribocolours{q2};
@@ -1002,7 +1008,8 @@ if ($no_labels) {
 }
 
 @blastreport2split = (split '/',$blastout);
-$cleanblastreport = pop(@blastreport2split);
+#$cleanblastreport = pop(@blastreport2split);
+$out_name = defined $out_name ? $out_name : pop(@blastreport2split);
 $record_limit = $max_ribbons * 2;
 open (CONF, ">$blastout.conf") || die "Cannot create $blastout.conf";
 print CONF "
@@ -1107,7 +1114,7 @@ karyotype           = $blastout.karyotype
 
 <image>
 $dir
-file                = $cleanblastreport.$out_type
+file                = $out_name.$out_type
 radius              = $out_size
 background          = white
 angle_offset        = -90
