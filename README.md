@@ -13,7 +13,7 @@ before you run Circoletto, be sure to:
 - have Circos (tested with 0.69-3, http://circos.ca/software/download/circos/), BLAST (tested with 2.2.25) in your path, and BioPerl (tested with 1.6.901) installed
 - check / edit (in the code) the two paths to Circos and Circos tools - if we cannot find them, we'll print a warning and exit
 - if you need to increase the max_sequences > 200, you also need to edit max_ideograms in Circos' housekeeping.conf
-
+</br>
 circoletto.pl
 
  either
