@@ -22,7 +22,7 @@ circoletto.pl
  or
 --blastout  or  --bl   (path to) the BLAST output
 </br>
-   other (optional) arguments
+ other (optional) arguments
 --out_dir              output directory, otherwise pwd
 --out_name             output basename (extension will be added automatically)
 --best_hit             set to show only best hit per query
