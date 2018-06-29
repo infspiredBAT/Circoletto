@@ -21,8 +21,8 @@ $usage = "# Circoletto - visualising sequence similarity with Circos
 welcome
 
 before you run Circoletto, be sure to:
-- have Circos (tested with $circos_compatibility, http://circos.ca/software/download/circos/), BLAST (tested with 2.2.25) in your path, and BioPerl (tested with 1.6.901) installed
-- check / edit (in the code) the two paths to Circos and Circos tools - if we cannot find them, we'll print a warning and exit
+- have circos & circos-tools (tested with $circos_compatibility, http://circos.ca/software/download/tools), BLAST (tested with 2.2.25) in your path, and BioPerl (tested with 1.6.901) installed
+- check / edit (in the code) the two paths to circos and circos-tools - if we cannot find them, we'll print a warning and exit
 - if you need to increase the max_sequences > 200, you also need to edit max_ideograms in Circos' housekeeping.conf
 
 circoletto.pl
@@ -33,7 +33,9 @@ circoletto.pl
     or
 --blastout  or  --bl   (path to) the BLAST output
 
+
     other (optional) arguments
+
 --out_dir              output directory, otherwise pwd
 --out_name             output basename (extension will be added automatically)
 --best_hit             set to show only best hit per query
@@ -47,6 +49,7 @@ circoletto.pl
 --no_labels            set to switch off labels
 --out_size             set radius of output in pixels, so set to '1000' for a 2000x2000 output [default: 1000]
 --out_type             output type, either 'svg', or 'png' [default]
+
 --score2colour         score to colour ribbons with, 'bit' for bitscore [default], or 'eval' for E-value, or 'id' for % identity
 --scoreratio2colour    score ratio to use for colouring, 'max' for score/max [default], 'minmax' for (score-min)/(max-min) that should give more colour range esp. for % identity
 --abscolour            use absolute scores for colouring, currently only allowed with % identity
@@ -56,17 +59,22 @@ circoletto.pl
 --annotation           user provided annotation file, see 'example_annotation.txt'
 --annocolour           colour ribbons by 'query' or 'database' default ideogram colours or annotation (see --annotation), or by 'query_rainbow_(colour|grey)' or 'database_rainbow_(colour|grey)'
 --invertcolour         set to colour ribbons by SEQUENCE (i.e. not ORDER) invertion (or reverse complementarity or plus/minus), normal in black, inverted in lime
+--hide_orient_lights   set to hide orientation lights at edges of ideograms, read from green (=beginning) to red (=end)
+--ribocolours2allow    blue, green, orange, red in a format like this (including parentheses) '(green|orange)' or '(blue)' - histograms are not affected
 --untangling_off       set to turn off ribbon untangling
+
 --revcomp_q            set to reverse complement query DNA sequences
 --revcomp_d            set to reverse complement database DNA sequences
 --reverse_qorder       set to reverse ORDER of query sequences, may help clarity
 --reverse_dorder       set to reverse ORDER of database sequences, may help clarity
 --reverse_qorient      set to reverse ORIENTATION of query sequences which then need to be read anticlockwisely, may help clarity
 --reverse_dorient      set to reverse ORIENTATION of database sequences which then need to be read anticlockwisely, may help clarity
---hide_orient_lights   set to hide orientation lights at edges of ideograms, read from green (=beginning) to red (=end)
---ribocolours2allow    blue, green, orange, red in a format like this (including parentheses) '(green|orange)' or '(blue)' - histograms are not affected
+
 --tblastx              run 6-frame tBLASTx for DNA vs DNA
 --cpus                 number of CPUs to use with BLAST
+
+--max_sequences        max sequences to allow
+--max_ribbons          max ribbons to allow
 
 ";
 
@@ -111,7 +119,9 @@ my $options_res = GetOptions(
     "ltrphyler!"  	            =>  \$ltrphyler,
     "cpus:f"                    =>  \$cpus,
     "mhits:f"                   =>  \$mhits,
-    "online!"  	                =>  \$online
+    "online!"  	                =>  \$online,
+    "max_sequences:f"           =>  \$max_sequences,
+    "max_ribbons:f"             =>  \$max_ribbons,
     );
 
 
@@ -129,32 +139,34 @@ unless ($path2circos_ok && $path2circostools_ok) { print "(!) please edit paths 
 #if (`perl -MBio::SearchIO -e 0` ne '') { print "(!) cannot find Bio::SearchIO - exiting\n"; exit; }
 #if (`perl -MBio::Seq -e 0`      ne '') { print "(!) cannot find Bio::Seq - exiting\n";      exit; }
 
+$max_sequences =  200 unless defined $max_sequences;
+$max_ribbons   = 1000 unless defined $max_ribbons;
 
 unless ($online) { # ... i.e. offline
 
     unless ((defined($query) && defined($database)) || defined($blastout)) { die $usage; }
     $out_dir   = defined $out_dir ? "$out_dir/" : '.';
     $dir       = "dir  = $out_dir";
-    if ($override) {                 $factor = 50;
-    } else {                         $factor = 1; }
-    $max_sequences          =  200 * $factor;
-    $max_ribbons            = 1000 * $factor;
-    $max_ribbons2untangle   = 100;
-    $max_total_length       = 2000000000; $max_total_length_in_mb = 2000;
-    $max_his_data           = 500000;
+    if ($override) {         $factor = 50;
+    } else {                 $factor = 1; }
+    $max_sequences        *= $factor;
+    $max_ribbons          *= $factor;
+    $max_ribbons2untangle  = 100;
+    $max_total_length      = 2000000000; $max_total_length_in_mb = 2000;
+    $max_his_data          = 500000;
 
 } else {
 
     $out_dir   = '/labs/bat/www/tools/results/circoletto/';
     $dir       = 'dir = /labs/bat/www/tools/results/circoletto';
     $gep       = '-1';
-    if ($override) {                 $factor = 50;
-    } else {                         $factor = 1; }
-    $max_sequences          =  200 * $factor;
-    $max_ribbons            = 1000 * $factor;
-    $max_ribbons2untangle   = 100;
-    $max_total_length       = 2000000000; $max_total_length_in_mb = 2000;
-    $max_his_data           = 500000;
+    if ($override) {         $factor = 50;
+    } else {                 $factor = 1; }
+    $max_sequences        *= $factor;
+    $max_ribbons          *= $factor;
+    $max_ribbons2untangle  = 100;
+    $max_total_length      = 2000000000; $max_total_length_in_mb = 2000;
+    $max_his_data          = 500000;
 
 }
 
