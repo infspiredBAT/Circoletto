@@ -145,7 +145,7 @@ $max_ribbons   = 1000 unless defined $max_ribbons;
 unless ($online) { # ... i.e. offline
 
     unless ((defined($query) && defined($database)) || defined($blastout)) { die $usage; }
-    $out_dir   = defined $out_dir ? "$out_dir/" : '.';
+    $out_dir   = defined $out_dir ? "$out_dir" : '.';
     $dir       = "dir  = $out_dir";
     if ($override) {         $factor = 50;
     } else {                 $factor = 1; }
@@ -157,7 +157,7 @@ unless ($online) { # ... i.e. offline
 
 } else {
 
-    $out_dir   = '/labs/bat/www/tools/results/circoletto/';
+    $out_dir   = '/labs/bat/www/tools/results/circoletto';
     $dir       = 'dir = /labs/bat/www/tools/results/circoletto';
     $gep       = '-1';
     if ($override) {         $factor = 50;
@@ -462,7 +462,7 @@ if (defined($query) && defined($database)) {
     $status = $? >> 8; unless ($status==0) { print "(!) there was an error running formatdb on your database - exiting\n"; exit; }
     if ($flt) {$flt = 'T';
     } else {   $flt = 'F'; }
-    $blastout = "$out_dir" . "cl$randomer.blasted";
+    $blastout = "$out_dir/cl$randomer.blasted";
     if ($best_hit) {
         $v4blast = 1;
         $b4blast = 1;
