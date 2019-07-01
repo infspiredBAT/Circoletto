@@ -3,7 +3,7 @@
 visualising sequence similarity with Circos
 
 </br>
-server: http://bat.infspire.org/tools/circoletto/</br>
+server: http://bat.infspire.org/tools/circoletto</br>
 citation: http://www.ncbi.nlm.nih.gov/pubmed/20736339</br>
 poster: http://bat.infspire.org/tools/circoletto/circoletto.png</br>
 code: we provide the main Perl script, and the server's CGI script and HTML page - you'll need Circos, BLAST, and BioPerl</br>
